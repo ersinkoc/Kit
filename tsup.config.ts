@@ -1,0 +1,30 @@
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  entry: [
+    'src/index.ts',
+    'src/core/index.ts',
+    'src/network/index.ts',
+    'src/data/index.ts',
+    'src/validation/index.ts',
+    'src/parsing/index.ts',
+    'src/async/index.ts',
+    'src/security/index.ts',
+    'src/utils/index.ts',
+    'src/observability/index.ts',
+    'src/adapters/express.ts',
+    'src/adapters/fastify.ts',
+    'src/adapters/hono.ts',
+    'src/adapters/koa.ts',
+    'src/adapters/http.ts',
+    'src/presets/index.ts',
+  ],
+  format: ['cjs', 'esm'],
+  dts: true,
+  splitting: true,
+  sourcemap: true,
+  clean: true,
+  treeshake: true,
+  minify: false,
+  target: 'es2022',
+});
