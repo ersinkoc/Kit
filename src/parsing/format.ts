@@ -70,8 +70,12 @@ export function formatNumber(
     minIntegerDigits = 1,
   } = options;
 
+  // Handle negative numbers
+  const isNegative = value < 0;
+  const absValue = Math.abs(value);
+
   // Round to specified decimals
-  const rounded = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  const rounded = Math.round(absValue * Math.pow(10, decimals)) / Math.pow(10, decimals);
 
   // Split into integer and decimal parts
   const parts = rounded.toString().split('.');
@@ -83,12 +87,7 @@ export function formatNumber(
     decimalPart = decimalPart.padEnd(decimals, '0');
   }
 
-  // Add leading zeros
-  if (integerPart.length < minIntegerDigits) {
-    integerPart = integerPart.padStart(minIntegerDigits, '0');
-  }
-
-  // Add thousands separator
+  // Add thousands separator (before padding with leading zeros)
   if (thousandsSeparator && integerPart.length > 3) {
     const groups: string[] = [];
     let i = integerPart.length;
@@ -102,10 +101,23 @@ export function formatNumber(
     integerPart = groups.join(thousandsSeparator);
   }
 
+  // Add leading zeros after thousands separator
+  // Calculate how many leading zeros we need
+  const currentDigits = integerPart.replace(/[^0-9]/g, '').length;
+  if (currentDigits < minIntegerDigits) {
+    const zerosNeeded = minIntegerDigits - currentDigits;
+    integerPart = '0'.repeat(zerosNeeded) + integerPart;
+  }
+
   // Combine parts
   let result = integerPart;
   if (decimalPart) {
     result += decimalSeparator + decimalPart;
+  }
+
+  // Add negative sign
+  if (isNegative) {
+    result = '-' + result;
   }
 
   return prefix + result + suffix;
@@ -121,11 +133,11 @@ export function formatPercent(
     multiply?: boolean;
   } = {}
 ): string {
-  const { multiply = true, ...numberOptions } = options;
+  const { multiply = true, decimals = 0, ...numberOptions } = options;
 
   const num = multiply ? value * 100 : value;
   return formatNumber(num, {
-    decimals: 2,
+    decimals,
     suffix: '%',
     ...numberOptions,
   });
@@ -267,23 +279,23 @@ export function formatDate(
       return d.toISOString().slice(0, 10);
 
     case 'MM/DD/YYYY': {
-      const m = (d.getMonth() + 1).toString().padStart(2, '0');
-      const day = d.getDate().toString().padStart(2, '0');
-      const year = d.getFullYear();
+      const m = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+      const day = d.getUTCDate().toString().padStart(2, '0');
+      const year = d.getUTCFullYear();
       return `${m}/${day}/${year}`;
     }
 
     case 'DD.MM.YYYY': {
-      const day = d.getDate().toString().padStart(2, '0');
-      const m = (d.getMonth() + 1).toString().padStart(2, '0');
-      const year = d.getFullYear();
+      const day = d.getUTCDate().toString().padStart(2, '0');
+      const m = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+      const year = d.getUTCFullYear();
       return `${day}.${m}.${year}`;
     }
 
     case 'HH:mm:ss': {
-      const h = d.getHours().toString().padStart(2, '0');
-      const m = d.getMinutes().toString().padStart(2, '0');
-      const s = d.getSeconds().toString().padStart(2, '0');
+      const h = d.getUTCHours().toString().padStart(2, '0');
+      const m = d.getUTCMinutes().toString().padStart(2, '0');
+      const s = d.getUTCSeconds().toString().padStart(2, '0');
       return `${h}:${m}:${s}`;
     }
 
@@ -305,14 +317,15 @@ export function formatRelativeTime(date: Date | string | number): string {
   const diff = now.getTime() - d.getTime();
   const absDiff = Math.abs(diff);
 
+  // Units from largest to smallest
   const units = [
-    { name: 'second', value: 1000 },
-    { name: 'minute', value: 60000 },
-    { name: 'hour', value: 3600000 },
-    { name: 'day', value: 86400000 },
-    { name: 'week', value: 604800000 },
-    { name: 'month', value: 2592000000 },
     { name: 'year', value: 31536000000 },
+    { name: 'month', value: 2592000000 },
+    { name: 'week', value: 604800000 },
+    { name: 'day', value: 86400000 },
+    { name: 'hour', value: 3600000 },
+    { name: 'minute', value: 60000 },
+    { name: 'second', value: 1000 },
   ];
 
   for (const unit of units) {
@@ -328,23 +341,23 @@ export function formatRelativeTime(date: Date | string | number): string {
 }
 
 /**
- * Format date using template string
+ * Format date using template string (uses UTC for consistency)
  */
 function formatDateTemplate(date: Date, template: string): string {
   const replacements: Record<string, string> = {
-    'YYYY': date.getFullYear().toString(),
-    'YY': date.getFullYear().toString().slice(-2),
-    'MM': (date.getMonth() + 1).toString().padStart(2, '0'),
-    'M': (date.getMonth() + 1).toString(),
-    'DD': date.getDate().toString().padStart(2, '0'),
-    'D': date.getDate().toString(),
-    'HH': date.getHours().toString().padStart(2, '0'),
-    'H': date.getHours().toString(),
-    'mm': date.getMinutes().toString().padStart(2, '0'),
-    'm': date.getMinutes().toString(),
-    'ss': date.getSeconds().toString().padStart(2, '0'),
-    's': date.getSeconds().toString(),
-    'SSS': date.getMilliseconds().toString().padStart(3, '0'),
+    'YYYY': date.getUTCFullYear().toString(),
+    'YY': date.getUTCFullYear().toString().slice(-2),
+    'MM': (date.getUTCMonth() + 1).toString().padStart(2, '0'),
+    'M': (date.getUTCMonth() + 1).toString(),
+    'DD': date.getUTCDate().toString().padStart(2, '0'),
+    'D': date.getUTCDate().toString(),
+    'HH': date.getUTCHours().toString().padStart(2, '0'),
+    'H': date.getUTCHours().toString(),
+    'mm': date.getUTCMinutes().toString().padStart(2, '0'),
+    'm': date.getUTCMinutes().toString(),
+    'ss': date.getUTCSeconds().toString().padStart(2, '0'),
+    's': date.getUTCSeconds().toString(),
+    'SSS': date.getUTCMilliseconds().toString().padStart(3, '0'),
   };
 
   let result = template;
@@ -759,6 +772,7 @@ export const formatCase = {
   /** camelCase */
   camelCase: (str: string): string =>
     str
+      .replace(/[-_]+/g, ' ')
       .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) =>
         index === 0 ? word.toLowerCase() : word.toUpperCase()
       )
@@ -767,6 +781,7 @@ export const formatCase = {
   /** PascalCase */
   pascalCase: (str: string): string =>
     str
+      .replace(/[-_]+/g, ' ')
       .replace(/(?:^\w|[A-Z]|\b\w)/g, (word) => word.toUpperCase())
       .replace(/\s+/g, ''),
 

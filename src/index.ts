@@ -127,11 +127,11 @@ export interface Kit {
   /** Circuit breaker module */
   circuit: import('./async/circuit.js').CircuitBreaker;
   /** Resource pool module */
-  pool: import('./async/pool.js').Pool;
+  pool: import('./async/pool.js').Pool<unknown>;
   /** Timeout module */
-  timeout: import('./async/timeout.js').Timeout;
+  timeout: typeof import('./async/timeout.js').Timeout;
   /** Debounce module */
-  debounce: import('./async/debounce.js').Debounce;
+  debounce: typeof import('./async/debounce.js').Debounce;
   /** Mutex module */
   mutex: import('./async/mutex.js').Mutex;
 
@@ -232,9 +232,9 @@ class KitImplementation implements Kit {
   retry!: import('./async/retry.js').Retry;
   rateLimit!: import('./async/rateLimit.js').RateLimiter;
   circuit!: import('./async/circuit.js').CircuitBreaker;
-  pool!: import('./async/pool.js').Pool;
-  timeout!: import('./async/timeout.js').Timeout;
-  debounce!: import('./async/debounce.js').Debounce;
+  pool!: import('./async/pool.js').Pool<unknown>;
+  timeout!: typeof import('./async/timeout.js').Timeout;
+  debounce!: typeof import('./async/debounce.js').Debounce;
   mutex!: import('./async/mutex.js').Mutex;
   crypto!: import('./security/crypto.js').Crypto;
   jwt!: import('./security/jwt.js').JWT;

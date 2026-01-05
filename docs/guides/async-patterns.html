@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Async Patterns Guide - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="../api/">API Reference</a></li>
+        <li><a href="./">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-header">
+      <h1>Async Patterns Guide</h1>
+      <p>Master async operations with queues, retry, and rate limiting</p>
+    </div>
+
+    <section class="section">
+      <h2>Task Queues</h2>
+      <p>Process tasks with controlled concurrency:</p>
+      <pre><code class="language-typescript">import { createQueue } from '@oxog/kit/async';
+
+// Create queue with concurrency limit
+const queue = createQueue({ concurrency: 3 });
+
+// Process items
+const urls = ['url1', 'url2', 'url3', 'url4', 'url5'];
+
+const results = await Promise.all(
+  urls.map(url =>
+    queue.add(async () => {
+      const response = await fetch(url);
+      return response.json();
+    })
+  )
+);
+
+// Priority queue - higher priority runs first
+queue.add(importantTask, { priority: 10 });
+queue.add(normalTask, { priority: 1 });
+
+// Monitor queue
+console.log(`Pending: ${queue.size}, Running: ${queue.pending}`);
+
+// Wait for all tasks to complete
+await queue.onIdle();</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Retry with Backoff</h2>
+      <pre><code class="language-typescript">import { retry } from '@oxog/kit/async';
+
+// Basic retry
+const result = await retry(
+  async () => {
+    const response = await fetch('https://api.example.com/data');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  },
+  {
+    retries: 3,
+    delay: 1000,        // Initial delay: 1 second
+    factor: 2,          // Exponential backoff: 1s, 2s, 4s
+    maxDelay: 10000,    // Cap at 10 seconds
+  }
+);
+
+// Conditional retry
+const result = await retry(fetchData, {
+  retries: 5,
+  retryIf: (error) => {
+    // Only retry on network errors or 5xx
+    if (error.code === 'ECONNRESET') return true;
+    if (error.response?.status >= 500) return true;
+    return false;
+  },
+  onRetry: (error, attempt) => {
+    console.log(`Retry ${attempt}: ${error.message}`);
+  },
+});</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Circuit Breaker</h2>
+      <p>Prevent cascading failures:</p>
+      <pre><code class="language-typescript">import { createCircuitBreaker } from '@oxog/kit/async';
+
+const breaker = createCircuitBreaker({
+  failureThreshold: 5,    // Open after 5 failures
+  successThreshold: 2,    // Close after 2 successes (half-open)
+  timeout: 30000,         // Try half-open after 30s
+});
+
+async function callExternalService(data) {
+  return breaker.execute(async () => {
+    return await externalApi.call(data);
+  });
+}
+
+// Use with fallback
+async function getDataWithFallback() {
+  try {
+    return await breaker.execute(() => primaryApi.getData());
+  } catch (error) {
+    if (error.message === 'Circuit breaker is open') {
+      // Circuit is open, use fallback
+      return await fallbackApi.getData();
+    }
+    throw error;
+  }
+}
+
+// Monitor state
+breaker.on('open', () => {
+  console.log('Circuit opened - too many failures');
+  alertOps('Primary API circuit breaker opened');
+});
+
+breaker.on('close', () => {
+  console.log('Circuit closed - service recovered');
+});
+
+console.log(breaker.state);  // 'closed' | 'open' | 'half-open'
+console.log(breaker.stats);  // { failures: 0, successes: 10, ... }</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Rate Limiting</h2>
+      <pre><code class="language-typescript">import { createRateLimiter } from '@oxog/kit/async';
+
+// 10 requests per second
+const limiter = createRateLimiter({
+  limit: 10,
+  window: 1000,
+});
+
+// Execute with rate limiting (waits if limit reached)
+async function fetchWithRateLimit(url: string) {
+  return limiter.execute(async () => {
+    return await fetch(url);
+  });
+}
+
+// Process many items respecting rate limit
+const urls = Array(100).fill('https://api.example.com/data');
+const results = await Promise.all(
+  urls.map(url => fetchWithRateLimit(url))
+);
+
+// Non-blocking check
+const canProceed = limiter.tryExecute(async () => {
+  // Returns null if rate limit exceeded
+  return await fetch(url);
+});
+
+if (canProceed === null) {
+  console.log('Rate limit exceeded, try later');
+}</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Mutex and Semaphore</h2>
+      <pre><code class="language-typescript">import { createMutex, createSemaphore } from '@oxog/kit/async';
+
+// Mutex - only one at a time
+const mutex = createMutex();
+
+async function updateSharedResource() {
+  await mutex.runExclusive(async () => {
+    // Only one execution at a time
+    const data = await readResource();
+    data.counter++;
+    await writeResource(data);
+  });
+}
+
+// Semaphore - limited concurrent access
+const semaphore = createSemaphore(3); // Allow 3 concurrent
+
+async function accessLimitedResource() {
+  await semaphore.runExclusive(async () => {
+    // At most 3 concurrent executions
+    return await expensiveOperation();
+  });
+}
+
+// Manual acquire/release
+const release = await mutex.acquire();
+try {
+  await criticalSection();
+} finally {
+  release();
+}</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Debounce and Throttle</h2>
+      <pre><code class="language-typescript">import { debounce, throttle } from '@oxog/kit/async';
+
+// Debounce - execute after delay with no calls
+const debouncedSearch = debounce(async (query: string) => {
+  const results = await searchApi(query);
+  updateUI(results);
+}, 300);
+
+// Only executes once, 300ms after last call
+searchInput.addEventListener('input', (e) => {
+  debouncedSearch(e.target.value);
+});
+
+// Throttle - execute at most once per interval
+const throttledScroll = throttle(() => {
+  updateScrollPosition();
+}, 100);
+
+window.addEventListener('scroll', throttledScroll);
+
+// With leading/trailing options
+const debouncedSave = debounce(saveDocument, 1000, {
+  leading: false,  // Don't execute on first call
+  trailing: true,  // Execute after wait period
+});
+
+// Cancel pending execution
+debouncedSearch.cancel();
+
+// Execute immediately
+debouncedSearch.flush();</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Resource Pooling</h2>
+      <pre><code class="language-typescript">import { createPool } from '@oxog/kit/async';
+
+// Create connection pool
+const pool = createPool({
+  create: async () => {
+    return await createDatabaseConnection();
+  },
+  destroy: async (connection) => {
+    await connection.close();
+  },
+  validate: async (connection) => {
+    return connection.isAlive();
+  },
+  min: 2,         // Minimum pool size
+  max: 10,        // Maximum pool size
+  idleTimeout: 30000,  // Close idle connections after 30s
+});
+
+// Use connection from pool
+async function queryDatabase(sql: string) {
+  return pool.use(async (connection) => {
+    return await connection.query(sql);
+  });
+}
+
+// Or manual acquire/release
+const connection = await pool.acquire();
+try {
+  await connection.query('SELECT 1');
+} finally {
+  pool.release(connection);
+}
+
+// Cleanup on shutdown
+await pool.drain();  // Wait for all to be released
+await pool.clear();  // Destroy all connections</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Combining Patterns</h2>
+      <pre><code class="language-typescript">import {
+  createQueue,
+  retry,
+  createCircuitBreaker,
+  createRateLimiter,
+} from '@oxog/kit/async';
+
+// Robust API client with all protections
+class RobustApiClient {
+  private queue = createQueue({ concurrency: 5 });
+  private rateLimiter = createRateLimiter({ limit: 100, window: 1000 });
+  private circuitBreaker = createCircuitBreaker({
+    failureThreshold: 10,
+    timeout: 60000,
+  });
+
+  async request(url: string) {
+    // Queue for concurrency control
+    return this.queue.add(async () => {
+      // Rate limiting
+      return this.rateLimiter.execute(async () => {
+        // Circuit breaker for failure protection
+        return this.circuitBreaker.execute(async () => {
+          // Retry for transient failures
+          return retry(
+            async () => {
+              const response = await fetch(url);
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              return response.json();
+            },
+            { retries: 3, delay: 1000 }
+          );
+        });
+      });
+    });
+  }
+}
+
+const client = new RobustApiClient();
+const data = await client.request('https://api.example.com/data');</code></pre>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Module - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="./">API Reference</a></li>
+        <li><a href="../guides/">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-layout">
+      <aside class="api-sidebar">
+        <ul>
+          <li><a href="#http">HTTP Client</a></li>
+          <li><a href="#interceptors">Interceptors</a></li>
+          <li><a href="#websocket">WebSocket</a></li>
+          <li><a href="#sse">SSE</a></li>
+        </ul>
+      </aside>
+
+      <div class="api-main">
+        <div class="api-header">
+          <h1>@oxog/kit/network</h1>
+          <p>HTTP client, WebSocket, and Server-Sent Events</p>
+        </div>
+
+        <section class="api-section" id="http">
+          <h2>HTTP Client</h2>
+          <p>Fetch-based HTTP client with interceptors and retry support</p>
+
+          <div class="api-function">
+            <h4>http</h4>
+            <p>Default HTTP client instance</p>
+            <pre><code>import { http } from '@oxog/kit/network';
+
+// GET request
+const response = await http.get('https://api.example.com/users');
+console.log(response.data);
+console.log(response.status);
+
+// POST request with body
+const created = await http.post('https://api.example.com/users', {
+  name: 'John',
+  email: 'john@example.com',
+});
+
+// With options
+const response = await http.get('https://api.example.com/data', {
+  headers: { 'Authorization': 'Bearer token' },
+  timeout: 5000,
+  params: { page: 1, limit: 10 },
+});</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>createHttpClient(config?: HttpClientConfig): HttpClient</h4>
+            <p>Create a new HTTP client with custom configuration</p>
+            <pre><code>import { createHttpClient } from '@oxog/kit/network';
+
+const api = createHttpClient({
+  baseURL: 'https://api.example.com',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// All requests use baseURL
+const users = await api.get('/users');
+const user = await api.post('/users', { name: 'John' });</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>client.get(url, config?): Promise&lt;HttpResponse&gt;</h4>
+            <p>Make GET request</p>
+          </div>
+
+          <div class="api-function">
+            <h4>client.post(url, body?, config?): Promise&lt;HttpResponse&gt;</h4>
+            <p>Make POST request</p>
+          </div>
+
+          <div class="api-function">
+            <h4>client.put(url, body?, config?): Promise&lt;HttpResponse&gt;</h4>
+            <p>Make PUT request</p>
+          </div>
+
+          <div class="api-function">
+            <h4>client.patch(url, body?, config?): Promise&lt;HttpResponse&gt;</h4>
+            <p>Make PATCH request</p>
+          </div>
+
+          <div class="api-function">
+            <h4>client.delete(url, config?): Promise&lt;HttpResponse&gt;</h4>
+            <p>Make DELETE request</p>
+          </div>
+
+          <div class="api-function">
+            <h4>HttpResponse</h4>
+            <p>Response object structure</p>
+            <pre><code>interface HttpResponse&lt;T&gt; {
+  data: T;           // Parsed response body
+  status: number;    // HTTP status code
+  statusText: string;
+  headers: Headers;  // Response headers
+  config: HttpRequestConfig;
+}</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="interceptors">
+          <h2>Interceptors</h2>
+          <p>Request and response interceptors</p>
+
+          <div class="api-function">
+            <h4>client.addRequestInterceptor(interceptor): () => void</h4>
+            <p>Add request interceptor. Returns function to remove it.</p>
+            <pre><code>// Add auth header to all requests
+const removeInterceptor = client.addRequestInterceptor((config) => {
+  return {
+    ...config,
+    headers: {
+      ...config.headers,
+      'Authorization': `Bearer ${getToken()}`,
+    },
+  };
+});
+
+// Later: remove the interceptor
+removeInterceptor();</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>client.addResponseInterceptor(interceptor): () => void</h4>
+            <p>Add response interceptor</p>
+            <pre><code>client.addResponseInterceptor((response) => {
+  // Log all responses
+  console.log(`${response.status} ${response.config.url}`);
+  return response;
+});</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>client.addErrorInterceptor(interceptor): () => void</h4>
+            <p>Add error interceptor</p>
+          </div>
+
+          <div class="api-function">
+            <h4>createRetryInterceptor(options?): ErrorInterceptor</h4>
+            <p>Create retry interceptor with exponential backoff</p>
+            <pre><code>import { createRetryInterceptor } from '@oxog/kit/network';
+
+client.addErrorInterceptor(createRetryInterceptor({
+  retries: 3,
+  retryDelay: (attempt) => Math.min(1000 * Math.pow(2, attempt), 30000),
+  retryCondition: (error) => {
+    // Retry on network errors or 5xx
+    return error.code === 'ENETWORK' ||
+           (error.response?.status >= 500);
+  },
+}));</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>createAuthInterceptor(options): RequestInterceptor</h4>
+            <p>Create authentication interceptor</p>
+            <pre><code>import { createAuthInterceptor } from '@oxog/kit/network';
+
+// Bearer token
+client.addRequestInterceptor(createAuthInterceptor({
+  type: 'bearer',
+  token: () => getAccessToken(),
+}));
+
+// Basic auth
+client.addRequestInterceptor(createAuthInterceptor({
+  type: 'basic',
+  username: 'user',
+  password: 'pass',
+}));</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>createLoggingInterceptor(options?): { request, response }</h4>
+            <p>Create logging interceptors</p>
+            <pre><code>import { createLoggingInterceptor } from '@oxog/kit/network';
+
+const { request, response } = createLoggingInterceptor({
+  logger: console.log,
+  logRequest: true,
+  logResponse: true,
+});
+
+client.addRequestInterceptor(request);
+client.addResponseInterceptor(response);</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="websocket">
+          <h2>WebSocket Client</h2>
+          <p>WebSocket client with auto-reconnect and heartbeat</p>
+
+          <div class="api-function">
+            <h4>createWebSocket(url: string, options?: WebSocketOptions): WebSocketClient</h4>
+            <p>Create a WebSocket client</p>
+            <pre><code>import { createWebSocket } from '@oxog/kit/network';
+
+const ws = createWebSocket('wss://api.example.com/ws', {
+  reconnect: true,
+  reconnectInterval: 1000,
+  maxReconnectAttempts: 10,
+  heartbeat: {
+    interval: 30000,
+    message: 'ping',
+  },
+});
+
+// Event handlers
+ws.on('open', () => {
+  console.log('Connected');
+});
+
+ws.on('message', (data) => {
+  console.log('Received:', data);
+});
+
+ws.on('close', (code, reason) => {
+  console.log('Disconnected:', code, reason);
+});
+
+ws.on('error', (error) => {
+  console.error('Error:', error);
+});
+
+// Send messages
+ws.send('Hello');
+ws.send({ type: 'subscribe', channel: 'updates' });
+
+// State
+console.log(ws.state); // 'connecting' | 'open' | 'closing' | 'closed'
+
+// Close connection
+ws.close();</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>connectWebSocket(url, options?): Promise&lt;WebSocketClient&gt;</h4>
+            <p>Create and connect WebSocket, resolving when connected</p>
+            <pre><code>const ws = await connectWebSocket('wss://api.example.com/ws');
+// Now connected and ready to use</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>createJsonRpcWebSocket(client): JsonRpcWebSocket</h4>
+            <p>JSON-RPC 2.0 over WebSocket</p>
+            <pre><code>import { createWebSocket, createJsonRpcWebSocket } from '@oxog/kit/network';
+
+const ws = createWebSocket('wss://api.example.com/rpc');
+const rpc = createJsonRpcWebSocket(ws);
+
+// Make RPC call
+const result = await rpc.call('users.get', { id: '123' });
+
+// With timeout
+const result = await rpc.call('slow.method', {}, { timeout: 5000 });
+
+// Handle notifications
+rpc.on('notification', (method, params) => {
+  console.log('Notification:', method, params);
+});</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="sse">
+          <h2>Server-Sent Events</h2>
+          <p>SSE client with auto-reconnect</p>
+
+          <div class="api-function">
+            <h4>createSSE(url: string, options?: SSEOptions): SSEClient</h4>
+            <p>Create an SSE client</p>
+            <pre><code>import { createSSE } from '@oxog/kit/network';
+
+const sse = createSSE('https://api.example.com/events', {
+  withCredentials: true,
+  reconnect: true,
+  reconnectInterval: 3000,
+});
+
+// Listen for messages
+sse.on('message', (event) => {
+  console.log('Message:', event.data);
+});
+
+// Listen for named events
+sse.on('update', (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Update:', data);
+});
+
+// Handle connection events
+sse.on('open', () => console.log('Connected'));
+sse.on('error', (error) => console.error('Error:', error));
+
+// Close connection
+sse.close();</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>connectSSE(url, options?): Promise&lt;SSEClient&gt;</h4>
+            <p>Create and connect SSE, resolving when connected</p>
+          </div>
+
+          <div class="api-function">
+            <h4>subscribeSSE(url, handlers, options?): () => void</h4>
+            <p>Subscribe to SSE with handlers, returns unsubscribe function</p>
+            <pre><code>import { subscribeSSE } from '@oxog/kit/network';
+
+const unsubscribe = subscribeSSE(
+  'https://api.example.com/stream',
+  {
+    onMessage: (data) => console.log('Message:', data),
+    onUpdate: (data) => console.log('Update:', data),
+    onError: (error) => console.error('Error:', error),
+  }
+);
+
+// Later: unsubscribe
+unsubscribe();</code></pre>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

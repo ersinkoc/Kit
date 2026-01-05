@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Module - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="./">API Reference</a></li>
+        <li><a href="../guides/">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-layout">
+      <aside class="api-sidebar">
+        <ul>
+          <li><a href="#cache">Cache</a></li>
+          <li><a href="#store">Store</a></li>
+          <li><a href="#session">Session</a></li>
+        </ul>
+      </aside>
+
+      <div class="api-main">
+        <div class="api-header">
+          <h1>@oxog/kit/data</h1>
+          <p>Cache, key-value store, and session management</p>
+        </div>
+
+        <section class="api-section" id="cache">
+          <h2>Cache</h2>
+          <p>In-memory cache with TTL support</p>
+
+          <div class="api-function">
+            <h4>createCache&lt;T&gt;(options?: CacheOptions): Cache&lt;T&gt;</h4>
+            <p>Create an in-memory cache</p>
+            <pre><code>import { createCache } from '@oxog/kit/data';
+
+const cache = createCache&lt;User&gt;({
+  ttl: 60000,        // Default TTL: 60 seconds
+  maxSize: 1000,     // Max entries (LRU eviction)
+  onEvict: (key, value) => {
+    console.log(`Evicted: ${key}`);
+  },
+});
+
+// Set with default TTL
+cache.set('user:123', { id: '123', name: 'John' });
+
+// Set with custom TTL
+cache.set('user:456', { id: '456', name: 'Jane' }, 300000);
+
+// Get value
+const user = cache.get('user:123');
+if (user) {
+  console.log(user.name);
+}
+
+// Check existence
+if (cache.has('user:123')) {
+  // ...
+}
+
+// Delete
+cache.delete('user:123');
+
+// Clear all
+cache.clear();
+
+// Stats
+console.log(cache.size);  // Current entry count
+console.log(cache.stats); // { hits, misses, hitRate }</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>cache.getOrSet(key, factory, ttl?): Promise&lt;T&gt;</h4>
+            <p>Get value or set from factory if missing</p>
+            <pre><code>// Fetch and cache user
+const user = await cache.getOrSet('user:123', async () => {
+  return await fetchUserFromDB('123');
+});
+
+// With custom TTL
+const user = await cache.getOrSet(
+  'user:123',
+  () => fetchUserFromDB('123'),
+  300000
+);</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>cache.mget(keys): Map&lt;string, T&gt;</h4>
+            <p>Get multiple values</p>
+          </div>
+
+          <div class="api-function">
+            <h4>cache.mset(entries, ttl?): void</h4>
+            <p>Set multiple values</p>
+            <pre><code>cache.mset([
+  ['user:1', user1],
+  ['user:2', user2],
+  ['user:3', user3],
+]);</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="store">
+          <h2>Store</h2>
+          <p>Key-value store with persistence options</p>
+
+          <div class="api-function">
+            <h4>createStore&lt;T&gt;(options?: StoreOptions): Store&lt;T&gt;</h4>
+            <p>Create a key-value store</p>
+            <pre><code>import { createStore } from '@oxog/kit/data';
+
+const store = createStore&lt;AppState&gt;({
+  initial: {
+    theme: 'dark',
+    language: 'en',
+  },
+  persist: './state.json',  // Optional file persistence
+});
+
+// Get/Set
+const theme = store.get('theme');
+store.set('theme', 'light');
+
+// Update (partial)
+store.update({
+  theme: 'dark',
+  language: 'fr',
+});
+
+// Subscribe to changes
+const unsubscribe = store.subscribe((state, changes) => {
+  console.log('State changed:', changes);
+});
+
+// Transaction
+store.transaction((state) => {
+  state.theme = 'dark';
+  state.language = 'de';
+  // Both changes applied atomically
+});</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>store.get(key): T[K]</h4>
+            <p>Get value by key</p>
+          </div>
+
+          <div class="api-function">
+            <h4>store.set(key, value): void</h4>
+            <p>Set value by key</p>
+          </div>
+
+          <div class="api-function">
+            <h4>store.getState(): T</h4>
+            <p>Get entire state object</p>
+          </div>
+
+          <div class="api-function">
+            <h4>store.subscribe(listener): () => void</h4>
+            <p>Subscribe to state changes</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="session">
+          <h2>Session</h2>
+          <p>Session management with automatic expiration</p>
+
+          <div class="api-function">
+            <h4>createSessionStore&lt;T&gt;(options?: SessionOptions): SessionStore&lt;T&gt;</h4>
+            <p>Create a session store</p>
+            <pre><code>import { createSessionStore } from '@oxog/kit/data';
+
+interface SessionData {
+  userId: string;
+  role: string;
+  preferences: Record&lt;string, any&gt;;
+}
+
+const sessions = createSessionStore&lt;SessionData&gt;({
+  ttl: 3600000,          // 1 hour default
+  maxSessions: 10000,    // Max concurrent sessions
+  cleanupInterval: 60000, // Cleanup every minute
+});
+
+// Create session
+const sessionId = sessions.create({
+  userId: '123',
+  role: 'admin',
+  preferences: { theme: 'dark' },
+});
+
+// Get session
+const session = sessions.get(sessionId);
+if (session) {
+  console.log(session.data.userId);
+  console.log(session.expiresAt);
+}
+
+// Update session data
+sessions.update(sessionId, {
+  preferences: { theme: 'light' },
+});
+
+// Touch (extend expiration)
+sessions.touch(sessionId);
+
+// Destroy session
+sessions.destroy(sessionId);
+
+// Destroy all sessions for user
+sessions.destroyByUser('123');
+
+// Stats
+console.log(sessions.count);         // Active sessions
+console.log(sessions.countByUser('123')); // User's sessions</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>sessions.create(data, options?): string</h4>
+            <p>Create new session and return session ID</p>
+          </div>
+
+          <div class="api-function">
+            <h4>sessions.get(id): Session&lt;T&gt; | null</h4>
+            <p>Get session by ID</p>
+          </div>
+
+          <div class="api-function">
+            <h4>sessions.update(id, data): boolean</h4>
+            <p>Update session data (merge)</p>
+          </div>
+
+          <div class="api-function">
+            <h4>sessions.touch(id): boolean</h4>
+            <p>Extend session expiration</p>
+          </div>
+
+          <div class="api-function">
+            <h4>sessions.destroy(id): boolean</h4>
+            <p>Destroy session</p>
+          </div>
+
+          <div class="api-function">
+            <h4>sessions.cleanup(): number</h4>
+            <p>Remove expired sessions, returns count removed</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

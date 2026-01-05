@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Async Module - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="./">API Reference</a></li>
+        <li><a href="../guides/">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-layout">
+      <aside class="api-sidebar">
+        <ul>
+          <li><a href="#queue">Queue</a></li>
+          <li><a href="#retry">Retry</a></li>
+          <li><a href="#circuit-breaker">Circuit Breaker</a></li>
+          <li><a href="#rate-limiter">Rate Limiter</a></li>
+          <li><a href="#mutex">Mutex/Semaphore</a></li>
+          <li><a href="#debounce">Debounce/Throttle</a></li>
+          <li><a href="#scheduler">Scheduler</a></li>
+          <li><a href="#pool">Pool</a></li>
+        </ul>
+      </aside>
+
+      <div class="api-main">
+        <div class="api-header">
+          <h1>@oxog/kit/async</h1>
+          <p>Queue, retry, circuit breaker, rate limiter, mutex, and more async utilities</p>
+        </div>
+
+        <section class="api-section" id="queue">
+          <h2>Queue</h2>
+          <p>Task queue with configurable concurrency control</p>
+
+          <div class="api-function">
+            <h4>createQueue(options?: QueueOptions): Queue</h4>
+            <p>Create a new task queue</p>
+            <pre><code>import { createQueue } from '@oxog/kit/async';
+
+const queue = createQueue({ concurrency: 3 });
+
+// Add tasks
+queue.add(async () => {
+  await doSomething();
+  return 'result';
+});
+
+// Add with priority (higher runs first)
+queue.add(importantTask, { priority: 10 });
+
+// Wait for all tasks to complete
+await queue.onIdle();
+
+// Get queue state
+console.log(queue.size);     // pending tasks
+console.log(queue.pending);  // running tasks</code></pre>
+            <dl class="params">
+              <dt>options.concurrency</dt>
+              <dd>Maximum concurrent tasks (default: 1)</dd>
+              <dt>options.autoStart</dt>
+              <dd>Start processing immediately (default: true)</dd>
+            </dl>
+          </div>
+
+          <div class="api-function">
+            <h4>queue.add&lt;T&gt;(fn: () => Promise&lt;T&gt;, options?: TaskOptions): Promise&lt;T&gt;</h4>
+            <p>Add a task to the queue. Returns a promise that resolves when the task completes.</p>
+          </div>
+
+          <div class="api-function">
+            <h4>queue.pause() / queue.start()</h4>
+            <p>Pause or resume queue processing</p>
+          </div>
+
+          <div class="api-function">
+            <h4>queue.clear()</h4>
+            <p>Clear all pending tasks from the queue</p>
+          </div>
+
+          <div class="api-function">
+            <h4>queue.onIdle(): Promise&lt;void&gt;</h4>
+            <p>Returns a promise that resolves when the queue becomes empty</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="retry">
+          <h2>Retry</h2>
+          <p>Retry failed operations with exponential backoff</p>
+
+          <div class="api-function">
+            <h4>retry&lt;T&gt;(fn: () => Promise&lt;T&gt;, options?: RetryOptions): Promise&lt;T&gt;</h4>
+            <p>Execute function with automatic retries on failure</p>
+            <pre><code>import { retry } from '@oxog/kit/async';
+
+const result = await retry(
+  async () => {
+    const response = await fetch('https://api.example.com/data');
+    if (!response.ok) throw new Error('Failed');
+    return response.json();
+  },
+  {
+    retries: 3,
+    delay: 1000,
+    factor: 2,         // Exponential backoff multiplier
+    maxDelay: 10000,   // Maximum delay between retries
+    onRetry: (error, attempt) => {
+      console.log(`Retry ${attempt}: ${error.message}`);
+    }
+  }
+);</code></pre>
+            <dl class="params">
+              <dt>options.retries</dt>
+              <dd>Maximum number of retry attempts (default: 3)</dd>
+              <dt>options.delay</dt>
+              <dd>Initial delay in ms (default: 1000)</dd>
+              <dt>options.factor</dt>
+              <dd>Exponential backoff factor (default: 2)</dd>
+              <dt>options.maxDelay</dt>
+              <dd>Maximum delay between retries (default: 30000)</dd>
+              <dt>options.retryIf</dt>
+              <dd>Function to determine if error should trigger retry</dd>
+              <dt>options.onRetry</dt>
+              <dd>Callback called on each retry</dd>
+            </dl>
+          </div>
+        </section>
+
+        <section class="api-section" id="circuit-breaker">
+          <h2>Circuit Breaker</h2>
+          <p>Prevent cascading failures with the circuit breaker pattern</p>
+
+          <div class="api-function">
+            <h4>createCircuitBreaker(options?: CircuitBreakerOptions): CircuitBreaker</h4>
+            <p>Create a circuit breaker</p>
+            <pre><code>import { createCircuitBreaker } from '@oxog/kit/async';
+
+const breaker = createCircuitBreaker({
+  failureThreshold: 5,    // Open after 5 failures
+  successThreshold: 2,    // Close after 2 successes
+  timeout: 30000,         // Try half-open after 30s
+});
+
+// Execute with circuit breaker protection
+try {
+  const result = await breaker.execute(async () => {
+    return await riskyApiCall();
+  });
+} catch (error) {
+  if (error.message === 'Circuit breaker is open') {
+    // Circuit is open, use fallback
+  }
+}
+
+// Check state
+console.log(breaker.state); // 'closed' | 'open' | 'half-open'
+console.log(breaker.stats); // { failures, successes, ... }</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>breaker.execute&lt;T&gt;(fn: () => Promise&lt;T&gt;): Promise&lt;T&gt;</h4>
+            <p>Execute function through the circuit breaker</p>
+          </div>
+
+          <div class="api-function">
+            <h4>breaker.reset()</h4>
+            <p>Reset the circuit breaker to closed state</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="rate-limiter">
+          <h2>Rate Limiter</h2>
+          <p>Limit the rate of function execution</p>
+
+          <div class="api-function">
+            <h4>createRateLimiter(options: RateLimiterOptions): RateLimiter</h4>
+            <p>Create a rate limiter</p>
+            <pre><code>import { createRateLimiter } from '@oxog/kit/async';
+
+const limiter = createRateLimiter({
+  limit: 10,      // 10 requests
+  window: 1000,   // per 1 second
+});
+
+// Execute with rate limiting
+const result = await limiter.execute(async () => {
+  return await apiCall();
+});
+
+// Check remaining capacity
+console.log(limiter.remaining); // 9</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>limiter.execute&lt;T&gt;(fn: () => Promise&lt;T&gt;): Promise&lt;T&gt;</h4>
+            <p>Execute function respecting rate limit. Waits if limit is reached.</p>
+          </div>
+
+          <div class="api-function">
+            <h4>limiter.tryExecute&lt;T&gt;(fn: () => Promise&lt;T&gt;): Promise&lt;T | null&gt;</h4>
+            <p>Try to execute function. Returns null if rate limit exceeded.</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="mutex">
+          <h2>Mutex / Semaphore</h2>
+          <p>Synchronization primitives for async code</p>
+
+          <div class="api-function">
+            <h4>createMutex(): Mutex</h4>
+            <p>Create a mutual exclusion lock</p>
+            <pre><code>import { createMutex } from '@oxog/kit/async';
+
+const mutex = createMutex();
+
+// Run exclusively (only one at a time)
+await mutex.runExclusive(async () => {
+  // Critical section
+  await updateSharedResource();
+});
+
+// Manual acquire/release
+const release = await mutex.acquire();
+try {
+  await doWork();
+} finally {
+  release();
+}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>createSemaphore(permits: number): Semaphore</h4>
+            <p>Create a semaphore with limited permits</p>
+            <pre><code>import { createSemaphore } from '@oxog/kit/async';
+
+const semaphore = createSemaphore(3); // Allow 3 concurrent
+
+await semaphore.runExclusive(async () => {
+  await limitedResource();
+});</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="debounce">
+          <h2>Debounce / Throttle</h2>
+          <p>Control function execution rate</p>
+
+          <div class="api-function">
+            <h4>debounce&lt;T&gt;(fn: (...args: any[]) => T, wait: number): DebouncedFunction&lt;T&gt;</h4>
+            <p>Create debounced function that delays execution until after wait ms have elapsed since the last call</p>
+            <pre><code>import { debounce } from '@oxog/kit/async';
+
+const debouncedSearch = debounce(async (query: string) => {
+  return await searchApi(query);
+}, 300);
+
+// Only executes once after 300ms of no calls
+debouncedSearch('h');
+debouncedSearch('he');
+debouncedSearch('hel');
+debouncedSearch('hello'); // This one executes
+
+// Cancel pending execution
+debouncedSearch.cancel();
+
+// Execute immediately
+debouncedSearch.flush();</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>throttle&lt;T&gt;(fn: (...args: any[]) => T, wait: number): ThrottledFunction&lt;T&gt;</h4>
+            <p>Create throttled function that executes at most once per wait ms</p>
+            <pre><code>import { throttle } from '@oxog/kit/async';
+
+const throttledScroll = throttle(() => {
+  updatePosition();
+}, 100);
+
+// Executes immediately, then at most once per 100ms
+window.addEventListener('scroll', throttledScroll);</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="scheduler">
+          <h2>Scheduler</h2>
+          <p>Cron-like task scheduling</p>
+
+          <div class="api-function">
+            <h4>createScheduler(): Scheduler</h4>
+            <p>Create a task scheduler</p>
+            <pre><code>import { createScheduler } from '@oxog/kit/async';
+
+const scheduler = createScheduler();
+
+// Schedule with cron expression
+scheduler.schedule('cleanup', '0 0 * * *', async () => {
+  await cleanupOldData();
+});
+
+// Schedule with interval
+scheduler.scheduleInterval('heartbeat', 60000, async () => {
+  await sendHeartbeat();
+});
+
+// Start/stop scheduler
+scheduler.start();
+scheduler.stop();
+
+// Manage tasks
+scheduler.cancel('cleanup');
+scheduler.runNow('heartbeat');</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="pool">
+          <h2>Pool</h2>
+          <p>Resource pooling with automatic management</p>
+
+          <div class="api-function">
+            <h4>createPool&lt;T&gt;(options: PoolOptions&lt;T&gt;): Pool&lt;T&gt;</h4>
+            <p>Create a resource pool</p>
+            <pre><code>import { createPool } from '@oxog/kit/async';
+
+const pool = createPool({
+  create: async () => {
+    return await createConnection();
+  },
+  destroy: async (conn) => {
+    await conn.close();
+  },
+  validate: async (conn) => {
+    return conn.isAlive();
+  },
+  min: 2,        // Minimum pool size
+  max: 10,       // Maximum pool size
+  idleTimeout: 30000,
+});
+
+// Acquire and release
+const conn = await pool.acquire();
+try {
+  await conn.query('SELECT 1');
+} finally {
+  pool.release(conn);
+}
+
+// Or use with callback
+await pool.use(async (conn) => {
+  return await conn.query('SELECT * FROM users');
+});
+
+// Cleanup
+await pool.drain();
+await pool.clear();</code></pre>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

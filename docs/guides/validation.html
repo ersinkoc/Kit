@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Validation Guide - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="../api/">API Reference</a></li>
+        <li><a href="./">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-header">
+      <h1>Form Validation Guide</h1>
+      <p>Build robust, type-safe validation schemas</p>
+    </div>
+
+    <section class="section">
+      <h2>Basic Schema</h2>
+      <p>Create a validation schema by composing validators:</p>
+      <pre><code class="language-typescript">import { validate } from '@oxog/kit/validation';
+
+const schema = validate.object({
+  username: validate.string().required().min(3).max(20),
+  email: validate.string().required().email(),
+  password: validate.string().required().min(8),
+  age: validate.number().optional().min(13),
+});
+
+// Validate data
+const result = schema.validate({
+  username: 'john_doe',
+  email: 'john@example.com',
+  password: 'securepass123',
+  age: 25,
+});
+
+if (result.valid) {
+  // TypeScript knows the shape of result.data
+  console.log(result.data.username);
+} else {
+  // Handle errors
+  console.log(result.errors);
+  // [{ path: 'email', message: 'Invalid email format' }]
+}</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Nested Objects</h2>
+      <pre><code class="language-typescript">const addressSchema = validate.object({
+  street: validate.string().required(),
+  city: validate.string().required(),
+  country: validate.string().required(),
+  zipCode: validate.string().pattern(/^\d{5}(-\d{4})?$/),
+});
+
+const userSchema = validate.object({
+  name: validate.string().required(),
+  email: validate.string().required().email(),
+  address: addressSchema.optional(),
+  billingAddress: addressSchema.optional(),
+});</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Arrays</h2>
+      <pre><code class="language-typescript">// Array of strings
+const tagsSchema = validate.array(validate.string().min(1))
+  .min(1)    // At least one tag
+  .max(10)   // At most 10 tags
+  .unique(); // No duplicates
+
+// Array of objects
+const itemsSchema = validate.array(
+  validate.object({
+    productId: validate.string().required(),
+    quantity: validate.number().required().min(1),
+    price: validate.number().required().min(0),
+  })
+).nonempty();</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Custom Validators</h2>
+      <pre><code class="language-typescript">const passwordSchema = validate.string()
+  .required()
+  .min(8)
+  .custom((value) => {
+    // Check for uppercase
+    if (!/[A-Z]/.test(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    // Check for number
+    if (!/\d/.test(value)) {
+      return 'Password must contain at least one number';
+    }
+    // Check for special character
+    if (!/[!@#$%^&*]/.test(value)) {
+      return 'Password must contain at least one special character';
+    }
+    return true;
+  });
+
+// Async validation
+const usernameSchema = validate.string()
+  .required()
+  .min(3)
+  .customAsync(async (value) => {
+    const exists = await checkUsernameExists(value);
+    if (exists) {
+      return 'Username is already taken';
+    }
+    return true;
+  });</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Conditional Validation</h2>
+      <pre><code class="language-typescript">const schema = validate.object({
+  accountType: validate.string().oneOf(['personal', 'business']),
+  personalName: validate.string().when('accountType', {
+    is: 'personal',
+    then: validate.string().required(),
+    otherwise: validate.string().optional(),
+  }),
+  companyName: validate.string().when('accountType', {
+    is: 'business',
+    then: validate.string().required(),
+    otherwise: validate.string().optional(),
+  }),
+});</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Error Messages</h2>
+      <pre><code class="language-typescript">const schema = validate.object({
+  email: validate.string()
+    .required('Email is required')
+    .email('Please enter a valid email address'),
+  age: validate.number()
+    .required('Age is required')
+    .min(18, 'You must be at least 18 years old')
+    .max(120, 'Please enter a valid age'),
+});
+
+// Access errors
+const result = schema.validate({ email: 'invalid', age: 10 });
+if (!result.valid) {
+  result.errors.forEach(error => {
+    console.log(`${error.path}: ${error.message}`);
+  });
+  // email: Please enter a valid email address
+  // age: You must be at least 18 years old
+}</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Transformations</h2>
+      <pre><code class="language-typescript">const schema = validate.object({
+  email: validate.string()
+    .required()
+    .email()
+    .transform((value) => value.toLowerCase().trim()),
+  tags: validate.array(validate.string())
+    .transform((arr) => arr.map(tag => tag.toLowerCase())),
+});
+
+const result = schema.validate({
+  email: '  USER@Example.COM  ',
+  tags: ['JavaScript', 'TypeScript'],
+});
+
+// result.data.email = 'user@example.com'
+// result.data.tags = ['javascript', 'typescript']</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Using with Express</h2>
+      <pre><code class="language-typescript">import express from 'express';
+import { validate } from '@oxog/kit/validation';
+
+const createUserSchema = validate.object({
+  email: validate.string().required().email(),
+  password: validate.string().required().min(8),
+  name: validate.string().required(),
+});
+
+// Validation middleware
+function validateBody(schema) {
+  return (req, res, next) => {
+    const result = schema.validate(req.body);
+    if (!result.valid) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: result.errors,
+      });
+    }
+    req.body = result.data; // Use validated/transformed data
+    next();
+  };
+}
+
+// Use in route
+app.post('/users', validateBody(createUserSchema), async (req, res) => {
+  // req.body is validated and typed
+  const user = await createUser(req.body);
+  res.json(user);
+});</code></pre>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

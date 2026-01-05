@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Module - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="./">API Reference</a></li>
+        <li><a href="../guides/">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-layout">
+      <aside class="api-sidebar">
+        <ul>
+          <li><a href="#jwt">JWT</a></li>
+          <li><a href="#hash">Hash</a></li>
+          <li><a href="#crypto">Crypto</a></li>
+        </ul>
+      </aside>
+
+      <div class="api-main">
+        <div class="api-header">
+          <h1>@oxog/kit/security</h1>
+          <p>JWT, hashing, encryption, and cryptographic utilities</p>
+        </div>
+
+        <section class="api-section" id="jwt">
+          <h2>JWT (JSON Web Tokens)</h2>
+          <p>Create and verify JSON Web Tokens</p>
+
+          <div class="api-function">
+            <h4>jwt.sign(payload: object, secret: string, options?: JWTOptions): string</h4>
+            <p>Create a signed JWT token</p>
+            <pre><code>import { jwt } from '@oxog/kit/security';
+
+const token = jwt.sign(
+  { userId: '123', role: 'admin' },
+  'your-secret-key',
+  {
+    expiresIn: '1h',      // or seconds: 3600
+    algorithm: 'HS256',   // HS256, HS384, HS512
+    issuer: 'my-app',
+    audience: 'my-users',
+    subject: 'auth',
+  }
+);
+
+// Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+            <dl class="params">
+              <dt>payload</dt>
+              <dd>Object containing claims to encode</dd>
+              <dt>secret</dt>
+              <dd>Secret key for signing</dd>
+              <dt>options.expiresIn</dt>
+              <dd>Expiration time (e.g., '1h', '7d', 3600)</dd>
+              <dt>options.algorithm</dt>
+              <dd>Signing algorithm (default: 'HS256')</dd>
+              <dt>options.issuer</dt>
+              <dd>Token issuer (iss claim)</dd>
+              <dt>options.audience</dt>
+              <dd>Token audience (aud claim)</dd>
+              <dt>options.subject</dt>
+              <dd>Token subject (sub claim)</dd>
+            </dl>
+          </div>
+
+          <div class="api-function">
+            <h4>jwt.verify&lt;T&gt;(token: string, secret: string, options?: JWTVerifyOptions): T</h4>
+            <p>Verify and decode a JWT token</p>
+            <pre><code>try {
+  const payload = jwt.verify(token, 'your-secret-key', {
+    algorithms: ['HS256'],
+    issuer: 'my-app',      // Validate issuer
+    audience: 'my-users',  // Validate audience
+  });
+
+  console.log(payload.userId); // '123'
+  console.log(payload.exp);    // Expiration timestamp
+} catch (error) {
+  // Token invalid, expired, or tampered with
+  console.error(error.message);
+}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>jwt.decode(token: string): object | null</h4>
+            <p>Decode a JWT without verification (unsafe, use for debugging)</p>
+            <pre><code>const payload = jwt.decode(token);
+// Returns payload without verifying signature</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="hash">
+          <h2>Hash</h2>
+          <p>Password hashing and verification</p>
+
+          <div class="api-function">
+            <h4>hash.password(password: string, options?: HashOptions): Promise&lt;string&gt;</h4>
+            <p>Hash a password using bcrypt-compatible algorithm</p>
+            <pre><code>import { hash } from '@oxog/kit/security';
+
+const hashedPassword = await hash.password('mySecurePassword', {
+  rounds: 12,  // Cost factor (default: 10)
+});
+
+// Store hashedPassword in database
+// $2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/...</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>hash.verify(password: string, hash: string): Promise&lt;boolean&gt;</h4>
+            <p>Verify a password against a hash</p>
+            <pre><code>const isValid = await hash.verify('mySecurePassword', hashedPassword);
+if (isValid) {
+  // Password is correct
+}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>hash.sha256(data: string | Buffer): string</h4>
+            <p>Generate SHA-256 hash (hex encoded)</p>
+            <pre><code>const hash256 = hash.sha256('data to hash');
+// '3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>hash.sha512(data: string | Buffer): string</h4>
+            <p>Generate SHA-512 hash (hex encoded)</p>
+          </div>
+
+          <div class="api-function">
+            <h4>hash.md5(data: string | Buffer): string</h4>
+            <p>Generate MD5 hash (hex encoded) - not recommended for security</p>
+          </div>
+
+          <div class="api-function">
+            <h4>hash.hmac(data: string, key: string, algorithm?: string): string</h4>
+            <p>Generate HMAC signature</p>
+            <pre><code>const signature = hash.hmac('message', 'secret-key', 'sha256');
+// Use for API signatures, webhooks, etc.</code></pre>
+          </div>
+        </section>
+
+        <section class="api-section" id="crypto">
+          <h2>Crypto</h2>
+          <p>Encryption, decryption, and random generation</p>
+
+          <div class="api-function">
+            <h4>crypto.encrypt(data: string, key: string): string</h4>
+            <p>Encrypt data using AES-256-GCM</p>
+            <pre><code>import { crypto } from '@oxog/kit/security';
+
+const key = crypto.generateKey(); // Generate a secure key
+const encrypted = crypto.encrypt('sensitive data', key);
+
+// encrypted: 'iv:authTag:ciphertext' (base64 encoded)</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>crypto.decrypt(encrypted: string, key: string): string</h4>
+            <p>Decrypt data encrypted with encrypt()</p>
+            <pre><code>const decrypted = crypto.decrypt(encrypted, key);
+// 'sensitive data'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>crypto.generateKey(size?: number): string</h4>
+            <p>Generate a cryptographically secure key</p>
+            <pre><code>const key = crypto.generateKey();     // 32 bytes (256 bits)
+const key16 = crypto.generateKey(16); // 16 bytes (128 bits)</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>crypto.randomHex(size: number): string</h4>
+            <p>Generate random hex string</p>
+            <pre><code>const hex = crypto.randomHex(16); // 32 character hex string
+// '7f3a9b2c4d5e6f7890abcdef12345678'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>crypto.randomBase64(size: number): string</h4>
+            <p>Generate random base64 string</p>
+            <pre><code>const base64 = crypto.randomBase64(16);
+// 'a2Vr3HmN+p/xYz=='</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>crypto.randomBytes(size: number): Buffer</h4>
+            <p>Generate random bytes buffer</p>
+            <pre><code>const bytes = crypto.randomBytes(32);
+// &lt;Buffer 7f 3a 9b 2c ...&gt;</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>crypto.timingSafeEqual(a: string, b: string): boolean</h4>
+            <p>Compare strings in constant time (prevents timing attacks)</p>
+            <pre><code>// Safe comparison for tokens, signatures, etc.
+if (crypto.timingSafeEqual(userToken, expectedToken)) {
+  // Valid token
+}</code></pre>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

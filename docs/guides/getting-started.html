@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="../api/">API Reference</a></li>
+        <li><a href="./">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-header">
+      <h1>Getting Started</h1>
+      <p>Get up and running with @oxog/kit in minutes</p>
+    </div>
+
+    <section class="section">
+      <h2>Installation</h2>
+      <pre><code class="language-bash">npm install @oxog/kit</code></pre>
+      <p>@oxog/kit has zero dependencies - it only uses built-in Node.js APIs.</p>
+    </section>
+
+    <section class="section">
+      <h2>Requirements</h2>
+      <ul>
+        <li>Node.js 18 or later</li>
+        <li>TypeScript 5.0+ (recommended)</li>
+        <li>ES2022 target or later</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Module Structure</h2>
+      <p>@oxog/kit is organized into focused modules that you import separately:</p>
+      <pre><code class="language-typescript">// Import specific modules
+import { string, array } from '@oxog/kit/utils';
+import { validate } from '@oxog/kit/validation';
+import { jwt, hash } from '@oxog/kit/security';
+import { log, createEventEmitter } from '@oxog/kit/core';
+import { createQueue, retry } from '@oxog/kit/async';
+import { metrics, createHealthChecker } from '@oxog/kit/observability';
+import { http, createWebSocket } from '@oxog/kit/network';
+import { createCache } from '@oxog/kit/data';
+import { json, url } from '@oxog/kit/parsing';</code></pre>
+      <p>This allows for tree-shaking - only the code you import is included in your bundle.</p>
+    </section>
+
+    <section class="section">
+      <h2>Quick Examples</h2>
+
+      <h3>String Utilities</h3>
+      <pre><code class="language-typescript">import { string } from '@oxog/kit/utils';
+
+string.slugify('Hello World!');  // 'hello-world'
+string.camelCase('hello world'); // 'helloWorld'
+string.truncate('Long text here', 10); // 'Long te...'</code></pre>
+
+      <h3>Validation</h3>
+      <pre><code class="language-typescript">import { validate } from '@oxog/kit/validation';
+
+const userSchema = validate.object({
+  email: validate.string().required().email(),
+  password: validate.string().required().min(8),
+  age: validate.number().optional().min(0),
+});
+
+const result = userSchema.validate(userData);
+if (result.valid) {
+  // result.data is typed correctly
+  console.log(result.data.email);
+}</code></pre>
+
+      <h3>JWT Authentication</h3>
+      <pre><code class="language-typescript">import { jwt } from '@oxog/kit/security';
+
+// Create token
+const token = jwt.sign(
+  { userId: '123', role: 'admin' },
+  process.env.JWT_SECRET,
+  { expiresIn: '24h' }
+);
+
+// Verify token
+try {
+  const payload = jwt.verify(token, process.env.JWT_SECRET);
+  console.log(payload.userId);
+} catch (error) {
+  // Token invalid or expired
+}</code></pre>
+
+      <h3>Task Queue</h3>
+      <pre><code class="language-typescript">import { createQueue } from '@oxog/kit/async';
+
+const queue = createQueue({ concurrency: 3 });
+
+// Add tasks
+const results = await Promise.all([
+  queue.add(() => processItem(1)),
+  queue.add(() => processItem(2)),
+  queue.add(() => processItem(3)),
+  queue.add(() => processItem(4)),
+]);
+
+// Wait for queue to empty
+await queue.onIdle();</code></pre>
+
+      <h3>HTTP Client</h3>
+      <pre><code class="language-typescript">import { http, createAuthInterceptor } from '@oxog/kit/network';
+
+// Add auth header to all requests
+http.addRequestInterceptor(createAuthInterceptor({
+  type: 'bearer',
+  token: () => getAccessToken(),
+}));
+
+// Make requests
+const users = await http.get('https://api.example.com/users');
+const newUser = await http.post('https://api.example.com/users', {
+  name: 'John',
+  email: 'john@example.com',
+});</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>TypeScript Configuration</h2>
+      <p>Recommended tsconfig.json settings:</p>
+      <pre><code class="language-json">{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Next Steps</h2>
+      <ul>
+        <li><a href="../api/">Explore the API Reference</a></li>
+        <li><a href="validation.html">Learn about validation</a></li>
+        <li><a href="authentication.html">Implement authentication</a></li>
+        <li><a href="async-patterns.html">Master async patterns</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

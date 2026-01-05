@@ -2,15 +2,74 @@
  * Observability modules - metrics, health, trace
  */
 
-// Placeholder exports - modules will be implemented
-export const Metrics = class {};
-export const HealthChecker = class {};
-export const Tracer = class {};
+// Metrics exports
+export {
+  Metrics,
+  Counter,
+  Gauge,
+  Histogram,
+  Summary,
+  Timer,
+  createMetrics,
+  metrics,
+  DEFAULT_BUCKETS,
+  DEFAULT_PERCENTILES,
+} from './metrics.js';
 
-export const createMetrics = () => new Metrics();
-export const createHealthChecker = () => new HealthChecker();
-export const createTracer = () => new Tracer();
+export type {
+  MetricLabels,
+  MetricOptions,
+  CounterOptions,
+  GaugeOptions,
+  HistogramOptions,
+  SummaryOptions,
+  TimerOptions,
+  MetricValue,
+  HistogramValue,
+  SummaryValue,
+} from './metrics.js';
 
-export const metrics = createMetrics();
-export const health = createHealthChecker();
-export const trace = createTracer();
+// Health exports
+export {
+  HealthChecker,
+  createHealthChecker,
+  health,
+  healthChecks,
+  healthResponse,
+} from './health.js';
+
+export type {
+  HealthStatus,
+  HealthCheckResult,
+  HealthCheckOptions,
+  HealthCheckFn,
+  HealthReport,
+  HealthCheckerOptions,
+} from './health.js';
+
+// Trace exports
+export {
+  Tracer,
+  Span,
+  ConsoleSpanExporter,
+  InMemorySpanExporter,
+  BatchSpanProcessor,
+  createTracer,
+  trace,
+  propagation,
+  traced,
+  traceFunction,
+} from './trace.js';
+
+export type {
+  SpanStatus,
+  SpanKind,
+  SpanContext,
+  SpanAttributes,
+  SpanEvent,
+  SpanLink,
+  SpanOptions,
+  SpanData,
+  SpanExporter,
+  TracerOptions,
+} from './trace.js';

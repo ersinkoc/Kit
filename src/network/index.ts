@@ -2,15 +2,56 @@
  * Network modules - HTTP, WebSocket, and SSE clients
  */
 
-// Placeholder exports - modules will be implemented
-export const HttpClient = class {};
-export const WebSocketClient = class {};
-export const SSEClient = class {};
+// HTTP exports
+export {
+  HttpClient,
+  createHttpClient,
+  http,
+  createRetryInterceptor,
+  createAuthInterceptor,
+  createLoggingInterceptor,
+} from './http.js';
 
-export const createHttp = () => new HttpClient();
-export const createWebSocket = () => new WebSocketClient();
-export const createSSE = () => new SSEClient();
+export type {
+  HttpMethod,
+  HttpRequestConfig,
+  HttpResponse,
+  HttpError,
+  RequestInterceptor,
+  ResponseInterceptor,
+  ErrorInterceptor,
+  HttpClientConfig,
+} from './http.js';
 
-export const http = createHttp();
-export const ws = createWebSocket();
-export const sse = createSSE();
+// WebSocket exports
+export {
+  WebSocketClient,
+  createWebSocket,
+  connectWebSocket,
+  JsonRpcWebSocket,
+  createJsonRpcWebSocket,
+} from './ws.js';
+
+export type {
+  WebSocketState,
+  WebSocketEvent,
+  WebSocketMessage,
+  WebSocketOptions,
+  MessageListener,
+  EventListener,
+} from './ws.js';
+
+// SSE exports
+export {
+  SSEClient,
+  createSSE,
+  connectSSE,
+  subscribeSSE,
+} from './sse.js';
+
+export type {
+  SSEState,
+  SSEEvent,
+  SSEOptions,
+  SSEEventListener,
+} from './sse.js';

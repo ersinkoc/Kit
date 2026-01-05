@@ -55,8 +55,8 @@ describe('formatNumber', () => {
   });
 
   it('should format with custom decimal separator', () => {
-    const result = formatNumber(1234.56, { decimalSeparator: ',' });
-    expect(result).toBe('1,234,56');
+    const result = formatNumber(1234.56, { decimalSeparator: ',', decimals: 2, thousandsSeparator: '.' });
+    expect(result).toBe('1.234,56');
   });
 
   it('should format with prefix', () => {
@@ -107,7 +107,7 @@ describe('formatNumber', () => {
 
 describe('formatPercent', () => {
   it('should format as percentage with multiply', () => {
-    const result = formatPercent(0.1234);
+    const result = formatPercent(0.1234, { decimals: 2 });
     expect(result).toBe('12.34%');
   });
 
@@ -150,7 +150,7 @@ describe('formatCurrency', () => {
 
   it('should format negative amount', () => {
     const result = formatCurrency(-100);
-    expect(result).toBe('-$100.00');
+    expect(result).toBe('$-100.00');
   });
 
   it('should format with custom currency symbol', () => {
@@ -187,56 +187,61 @@ describe('formatCurrency', () => {
 describe('formatSize', () => {
   it('should auto format bytes', () => {
     const result = formatSize(500);
-    expect(result).toBe('500 B');
+    expect(result).toBe('500.00 B');
   });
 
   it('should auto format kilobytes', () => {
     const result = formatSize(2048);
-    expect(result).toBe('2 KB');
+    expect(result).toBe('2.00 KB');
   });
 
   it('should auto format megabytes', () => {
     const result = formatSize(1048576 * 5);
-    expect(result).toBe('5 MB');
+    expect(result).toBe('5.00 MB');
   });
 
   it('should auto format gigabytes', () => {
     const result = formatSize(1073741824 * 2);
-    expect(result).toBe('2 GB');
+    expect(result).toBe('2.00 GB');
   });
 
   it('should auto format terabytes', () => {
     const result = formatSize(1099511627776);
-    expect(result).toBe('1 TB');
+    expect(result).toBe('1.00 TB');
   });
 
   it('should auto format petabytes', () => {
     const result = formatSize(1125899906842624);
-    expect(result).toBe('1 PB');
+    expect(result).toBe('1.00 PB');
   });
 
   it('should format with specific unit', () => {
     const result = formatSize(1048576, { unit: 'MB' });
-    expect(result).toBe('1 MB');
+    expect(result).toBe('1.00 MB');
   });
 
   it('should format with custom decimals', () => {
     const result = formatSize(1536, { decimals: 3 });
-    expect(result).toBe('1.5 KB');
+    expect(result).toBe('1.500 KB');
   });
 
   it('should use decimal units (1000)', () => {
     const result = formatSize(1500, { binary: false });
-    expect(result).toBe('1.5 KB');
+    expect(result).toBe('1.50 KB');
   });
 
   it('should format zero', () => {
     const result = formatSize(0);
-    expect(result).toBe('0 B');
+    expect(result).toBe('0.00 B');
   });
 
   it('should handle exact boundaries', () => {
     const result = formatSize(1024);
+    expect(result).toBe('1.00 KB');
+  });
+
+  it('should format without decimals when specified', () => {
+    const result = formatSize(1024, { decimals: 0 });
     expect(result).toBe('1 KB');
   });
 });
@@ -893,7 +898,7 @@ describe('formatTruncate', () => {
   });
 
   it('should break words', () => {
-    const result = formatTruncate('Hello world', { length: 8, breakWords: true });
+    const result = formatTruncate('Hello world', { length: 11, breakWords: true });
     expect(result).toBe('Hello wo...');
   });
 

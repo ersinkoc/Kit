@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utils Module - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="./">API Reference</a></li>
+        <li><a href="../guides/">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-layout">
+      <aside class="api-sidebar">
+        <ul>
+          <li><a href="#string">string</a></li>
+          <li><a href="#array">array</a></li>
+          <li><a href="#object">object</a></li>
+          <li><a href="#date">date</a></li>
+          <li><a href="#random">random</a></li>
+        </ul>
+      </aside>
+
+      <div class="api-main">
+        <div class="api-header">
+          <h1>@oxog/kit/utils</h1>
+          <p>String, array, object, date, math, and random utilities</p>
+        </div>
+
+        <section class="api-section" id="string">
+          <h2>string</h2>
+          <p>String manipulation utilities</p>
+
+          <div class="api-function">
+            <h4>string.camelCase(str: string): string</h4>
+            <p>Convert string to camelCase</p>
+            <pre><code>string.camelCase('hello world'); // 'helloWorld'
+string.camelCase('foo-bar-baz'); // 'fooBarBaz'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.pascalCase(str: string): string</h4>
+            <p>Convert string to PascalCase</p>
+            <pre><code>string.pascalCase('hello world'); // 'HelloWorld'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.snakeCase(str: string): string</h4>
+            <p>Convert string to snake_case</p>
+            <pre><code>string.snakeCase('helloWorld'); // 'hello_world'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.kebabCase(str: string): string</h4>
+            <p>Convert string to kebab-case</p>
+            <pre><code>string.kebabCase('helloWorld'); // 'hello-world'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.slugify(str: string): string</h4>
+            <p>Convert string to URL-friendly slug</p>
+            <pre><code>string.slugify('Hello World!'); // 'hello-world'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.truncate(str: string, length: number, suffix?: string): string</h4>
+            <p>Truncate string to specified length with optional suffix</p>
+            <pre><code>string.truncate('Hello World', 8); // 'Hello...'
+string.truncate('Hello World', 8, '---'); // 'Hello---'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.capitalize(str: string): string</h4>
+            <p>Capitalize first character</p>
+            <pre><code>string.capitalize('hello'); // 'Hello'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.titleCase(str: string): string</h4>
+            <p>Convert to Title Case</p>
+            <pre><code>string.titleCase('hello world'); // 'Hello World'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.reverse(str: string): string</h4>
+            <p>Reverse a string</p>
+            <pre><code>string.reverse('hello'); // 'olleh'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.trim(str: string): string</h4>
+            <p>Trim whitespace from both ends</p>
+          </div>
+
+          <div class="api-function">
+            <h4>string.padStart(str: string, length: number, char?: string): string</h4>
+            <p>Pad string at start to reach specified length</p>
+            <pre><code>string.padStart('5', 3, '0'); // '005'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>string.padEnd(str: string, length: number, char?: string): string</h4>
+            <p>Pad string at end to reach specified length</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="array">
+          <h2>array</h2>
+          <p>Array operation utilities</p>
+
+          <div class="api-function">
+            <h4>array.chunk&lt;T&gt;(arr: T[], size: number): T[][]</h4>
+            <p>Split array into chunks of specified size</p>
+            <pre><code>array.chunk([1, 2, 3, 4, 5], 2); // [[1, 2], [3, 4], [5]]</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>array.unique&lt;T&gt;(arr: T[]): T[]</h4>
+            <p>Remove duplicate values from array</p>
+            <pre><code>array.unique([1, 1, 2, 2, 3]); // [1, 2, 3]</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>array.shuffle&lt;T&gt;(arr: T[]): T[]</h4>
+            <p>Randomly shuffle array elements</p>
+            <pre><code>array.shuffle([1, 2, 3, 4, 5]); // [3, 1, 5, 2, 4]</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>array.groupBy&lt;T&gt;(arr: T[], key: keyof T | ((item: T) => string)): Record&lt;string, T[]&gt;</h4>
+            <p>Group array items by key or function</p>
+            <pre><code>array.groupBy([{type: 'a'}, {type: 'b'}, {type: 'a'}], 'type');
+// { a: [{type: 'a'}, {type: 'a'}], b: [{type: 'b'}] }</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>array.sortBy&lt;T&gt;(arr: T[], key: keyof T, order?: 'asc' | 'desc'): T[]</h4>
+            <p>Sort array by key</p>
+            <pre><code>array.sortBy([{age: 30}, {age: 20}], 'age'); // [{age: 20}, {age: 30}]</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>array.first&lt;T&gt;(arr: T[]): T | undefined</h4>
+            <p>Get first element of array</p>
+          </div>
+
+          <div class="api-function">
+            <h4>array.last&lt;T&gt;(arr: T[]): T | undefined</h4>
+            <p>Get last element of array</p>
+          </div>
+
+          <div class="api-function">
+            <h4>array.flatten&lt;T&gt;(arr: T[][], depth?: number): T[]</h4>
+            <p>Flatten nested arrays to specified depth</p>
+            <pre><code>array.flatten([[1, 2], [3, [4, 5]]]); // [1, 2, 3, [4, 5]]
+array.flatten([[1, 2], [3, [4, 5]]], 2); // [1, 2, 3, 4, 5]</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>array.intersection&lt;T&gt;(arr1: T[], arr2: T[]): T[]</h4>
+            <p>Get common elements between two arrays</p>
+          </div>
+
+          <div class="api-function">
+            <h4>array.difference&lt;T&gt;(arr1: T[], arr2: T[]): T[]</h4>
+            <p>Get elements in arr1 that are not in arr2</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="object">
+          <h2>object</h2>
+          <p>Object manipulation utilities</p>
+
+          <div class="api-function">
+            <h4>object.get(obj: any, path: string, defaultValue?: any): any</h4>
+            <p>Get value at path with optional default</p>
+            <pre><code>object.get({a: {b: {c: 1}}}, 'a.b.c'); // 1
+object.get({a: {b: 1}}, 'a.x.y', 'default'); // 'default'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>object.set(obj: any, path: string, value: any): any</h4>
+            <p>Set value at path, creating nested objects as needed</p>
+            <pre><code>object.set({}, 'a.b.c', 1); // {a: {b: {c: 1}}}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>object.pick&lt;T, K extends keyof T&gt;(obj: T, keys: K[]): Pick&lt;T, K&gt;</h4>
+            <p>Create object with only specified keys</p>
+            <pre><code>object.pick({a: 1, b: 2, c: 3}, ['a', 'c']); // {a: 1, c: 3}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>object.omit&lt;T, K extends keyof T&gt;(obj: T, keys: K[]): Omit&lt;T, K&gt;</h4>
+            <p>Create object without specified keys</p>
+            <pre><code>object.omit({a: 1, b: 2, c: 3}, ['b']); // {a: 1, c: 3}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>object.merge(...objs: any[]): any</h4>
+            <p>Deep merge multiple objects</p>
+            <pre><code>object.merge({a: 1}, {b: 2}, {a: 3}); // {a: 3, b: 2}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>object.clone&lt;T&gt;(obj: T): T</h4>
+            <p>Deep clone an object</p>
+          </div>
+
+          <div class="api-function">
+            <h4>object.flatten(obj: any, prefix?: string): Record&lt;string, any&gt;</h4>
+            <p>Flatten nested object to dot-notation keys</p>
+            <pre><code>object.flatten({a: {b: {c: 1}}}); // {'a.b.c': 1}</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>object.isEqual(a: any, b: any): boolean</h4>
+            <p>Deep equality comparison</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="date">
+          <h2>date</h2>
+          <p>Date formatting and manipulation utilities</p>
+
+          <div class="api-function">
+            <h4>date.format(date: Date, pattern: string): string</h4>
+            <p>Format date using pattern string</p>
+            <pre><code>date.format(new Date(), 'YYYY-MM-DD'); // '2024-01-15'
+date.format(new Date(), 'HH:mm:ss'); // '14:30:00'</code></pre>
+            <p>Supported tokens: YYYY, MM, DD, HH, mm, ss, SSS</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.parse(str: string): Date</h4>
+            <p>Parse date string to Date object</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.addDays(date: Date, days: number): Date</h4>
+            <p>Add days to a date</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.addMonths(date: Date, months: number): Date</h4>
+            <p>Add months to a date</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.addYears(date: Date, years: number): Date</h4>
+            <p>Add years to a date</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.diffDays(a: Date, b: Date): number</h4>
+            <p>Get difference in days between two dates</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.startOfDay(date: Date): Date</h4>
+            <p>Get start of day (00:00:00.000)</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.endOfDay(date: Date): Date</h4>
+            <p>Get end of day (23:59:59.999)</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.startOfMonth(date: Date): Date</h4>
+            <p>Get first day of month</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.endOfMonth(date: Date): Date</h4>
+            <p>Get last day of month</p>
+          </div>
+
+          <div class="api-function">
+            <h4>date.isLeapYear(year: number): boolean</h4>
+            <p>Check if year is a leap year</p>
+          </div>
+        </section>
+
+        <section class="api-section" id="random">
+          <h2>random</h2>
+          <p>Random value generation utilities</p>
+
+          <div class="api-function">
+            <h4>random.uuid(): string</h4>
+            <p>Generate a random UUID v4</p>
+            <pre><code>random.uuid(); // 'f47ac10b-58cc-4372-a567-0e02b2c3d479'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>random.int(min: number, max: number): number</h4>
+            <p>Generate random integer in range (inclusive)</p>
+            <pre><code>random.int(1, 10); // 7</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>random.float(min: number, max: number): number</h4>
+            <p>Generate random float in range</p>
+            <pre><code>random.float(0, 1); // 0.3456789</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>random.pick&lt;T&gt;(arr: T[]): T</h4>
+            <p>Pick random element from array</p>
+            <pre><code>random.pick(['a', 'b', 'c']); // 'b'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>random.shuffle&lt;T&gt;(arr: T[]): T[]</h4>
+            <p>Randomly shuffle array (same as array.shuffle)</p>
+          </div>
+
+          <div class="api-function">
+            <h4>random.string(length: number, charset?: string): string</h4>
+            <p>Generate random string of specified length</p>
+            <pre><code>random.string(8); // 'a3Bf9xKp'
+random.string(4, '0123456789'); // '7294'</code></pre>
+          </div>
+
+          <div class="api-function">
+            <h4>random.boolean(): boolean</h4>
+            <p>Generate random boolean</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

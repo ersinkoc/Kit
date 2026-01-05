@@ -1,0 +1,257 @@
+# @oxog/kit
+
+> Zero-dependency Node.js standard library for modern TypeScript applications
+
+## Overview
+
+@oxog/kit is a comprehensive utility library providing essential functionality without external dependencies. It's designed for Node.js 18+ with full TypeScript support.
+
+## Installation
+
+```bash
+npm install @oxog/kit
+```
+
+## Module Structure
+
+The library is organized into focused modules:
+
+- `@oxog/kit/utils` - String, array, object, date, math, random utilities
+- `@oxog/kit/validation` - Schema validation, sanitization, transformation
+- `@oxog/kit/security` - JWT, hashing, encryption, crypto utilities
+- `@oxog/kit/core` - Config, logging, events, context, errors, hooks
+- `@oxog/kit/data` - Cache, store, session management
+- `@oxog/kit/parsing` - JSON, URL, query string, MIME type parsing
+- `@oxog/kit/async` - Queue, retry, circuit breaker, rate limiter, mutex
+- `@oxog/kit/observability` - Metrics, health checks, distributed tracing
+- `@oxog/kit/network` - HTTP client, WebSocket, SSE clients
+
+## Quick Usage Examples
+
+### String Utilities
+```typescript
+import { string } from '@oxog/kit/utils';
+
+string.slugify('Hello World');       // 'hello-world'
+string.camelCase('hello world');     // 'helloWorld'
+string.truncate('Long text...', 10); // 'Long te...'
+```
+
+### Array Utilities
+```typescript
+import { array } from '@oxog/kit/utils';
+
+array.chunk([1,2,3,4,5], 2);    // [[1,2], [3,4], [5]]
+array.unique([1,1,2,2,3]);       // [1, 2, 3]
+array.groupBy(items, 'category');
+```
+
+### Validation
+```typescript
+import { validate } from '@oxog/kit/validation';
+
+const schema = validate.object({
+  email: validate.string().required().email(),
+  age: validate.number().min(0).max(150),
+});
+
+const result = schema.validate(data);
+if (result.valid) {
+  // result.data is typed
+}
+```
+
+### JWT
+```typescript
+import { jwt } from '@oxog/kit/security';
+
+const token = jwt.sign({ userId: '123' }, 'secret', { expiresIn: '1h' });
+const decoded = jwt.verify(token, 'secret');
+```
+
+### Password Hashing
+```typescript
+import { hash } from '@oxog/kit/security';
+
+const hashed = await hash.password('mypassword');
+const valid = await hash.verify('mypassword', hashed);
+```
+
+### HTTP Client
+```typescript
+import { http } from '@oxog/kit/network';
+
+const response = await http.get('https://api.example.com/users');
+const data = response.data;
+```
+
+### Task Queue
+```typescript
+import { createQueue } from '@oxog/kit/async';
+
+const queue = createQueue({ concurrency: 3 });
+queue.add(async () => /* task */);
+await queue.onIdle();
+```
+
+### Circuit Breaker
+```typescript
+import { createCircuitBreaker } from '@oxog/kit/async';
+
+const cb = createCircuitBreaker({ failureThreshold: 3 });
+const result = await cb.execute(() => riskyOperation());
+```
+
+### Logging
+```typescript
+import { log } from '@oxog/kit/core';
+
+log.info('User created', { userId: '123' });
+log.error('Failed to connect', { error: err.message });
+```
+
+### Metrics
+```typescript
+import { metrics } from '@oxog/kit/observability';
+
+const counter = metrics.counter({ name: 'requests_total' });
+counter.inc();
+```
+
+### Health Checks
+```typescript
+import { createHealthChecker } from '@oxog/kit/observability';
+
+const health = createHealthChecker();
+health.register('db', async () => checkDatabase());
+const report = await health.check();
+```
+
+## API Reference
+
+### Utils Module (`@oxog/kit/utils`)
+
+**string** - String manipulation
+- `camelCase(str)`, `pascalCase(str)`, `snakeCase(str)`, `kebabCase(str)`
+- `slugify(str)`, `truncate(str, length)`, `trim(str)`
+- `capitalize(str)`, `titleCase(str)`, `reverse(str)`
+
+**array** - Array operations
+- `chunk(arr, size)`, `unique(arr)`, `shuffle(arr)`
+- `groupBy(arr, key)`, `sortBy(arr, key)`
+- `first(arr)`, `last(arr)`, `flatten(arr)`
+
+**object** - Object utilities
+- `get(obj, path, default)`, `set(obj, path, value)`
+- `pick(obj, keys)`, `omit(obj, keys)`, `merge(...objs)`
+- `clone(obj)`, `flatten(obj)`, `isEqual(a, b)`
+
+**date** - Date operations
+- `format(date, pattern)`, `parse(str)`
+- `addDays(date, n)`, `diffDays(a, b)`
+- `startOfDay(date)`, `endOfMonth(date)`
+
+**random** - Random generation
+- `uuid()`, `int(min, max)`, `float(min, max)`
+- `pick(arr)`, `shuffle(arr)`, `string(length)`
+
+### Validation Module (`@oxog/kit/validation`)
+
+**validate** - Schema validation
+- `string()`, `number()`, `boolean()`, `array(schema)`, `object(shape)`
+- Modifiers: `.required()`, `.optional()`, `.min()`, `.max()`, `.email()`, `.url()`
+
+**transform** - Data transformation
+- `trim(str)`, `lowercase(str)`, `uppercase(str)`
+- `toNumber(val)`, `toBoolean(val)`
+
+**sanitize** - Input sanitization
+- `stripTags(html)`, `escape(str)`, `normalizeEmail(email)`
+
+### Security Module (`@oxog/kit/security`)
+
+**jwt** - JSON Web Tokens
+- `sign(payload, secret, options)`, `verify(token, secret)`
+
+**hash** - Hashing
+- `password(str)`, `verify(str, hash)`
+- `sha256(str)`, `sha512(str)`, `md5(str)`
+
+**crypto** - Encryption
+- `encrypt(data, key)`, `decrypt(data, key)`
+- `generateKey(size)`, `randomHex(size)`, `randomBase64(size)`
+
+### Async Module (`@oxog/kit/async`)
+
+**Queue** - Task queue with concurrency
+```typescript
+const queue = createQueue({ concurrency: 5 });
+queue.add(task);
+await queue.onIdle();
+```
+
+**Retry** - Exponential backoff
+```typescript
+await retry(fn, { retries: 3, delay: 1000 });
+```
+
+**CircuitBreaker** - Failure protection
+```typescript
+const cb = createCircuitBreaker({ failureThreshold: 5 });
+await cb.execute(fn);
+```
+
+**RateLimiter** - Request throttling
+```typescript
+const limiter = createRateLimiter({ limit: 10, window: 1000 });
+await limiter.execute(fn);
+```
+
+**Mutex/Semaphore** - Synchronization
+```typescript
+const mutex = createMutex();
+await mutex.runExclusive(fn);
+```
+
+**debounce/throttle** - Rate limiting
+```typescript
+const debouncedFn = debounce(fn, 300);
+const throttledFn = throttle(fn, 100);
+```
+
+### Observability Module (`@oxog/kit/observability`)
+
+**Metrics** - Application metrics
+- Counter, Gauge, Histogram, Summary
+- Prometheus format export
+
+**HealthChecker** - Health checks
+- Liveness and readiness probes
+- Custom health check registration
+
+**Tracer** - Distributed tracing
+- Span creation and management
+- W3C Trace Context propagation
+
+### Network Module (`@oxog/kit/network`)
+
+**HttpClient** - HTTP requests
+- GET, POST, PUT, DELETE, etc.
+- Interceptors, retry, timeout
+
+**WebSocketClient** - WebSocket connections
+- Auto-reconnect, heartbeat
+- JSON-RPC support
+
+**SSEClient** - Server-Sent Events
+- Auto-reconnect
+- Custom event handling
+
+## Design Principles
+
+1. **Zero dependencies** - No external packages required
+2. **TypeScript-first** - Full type safety and inference
+3. **Tree-shakeable** - Import only what you need
+4. **Node.js native** - Uses built-in Node.js APIs
+5. **Modern patterns** - Async/await, ES modules
+6. **Production-ready** - Error handling, edge cases covered

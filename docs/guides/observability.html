@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observability Guide - @oxog/kit</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../" class="nav-logo">@oxog/kit</a>
+      <ul class="nav-menu">
+        <li><a href="../#getting-started">Getting Started</a></li>
+        <li><a href="../#modules">Modules</a></li>
+        <li><a href="../api/">API Reference</a></li>
+        <li><a href="./">Guides</a></li>
+        <li><a href="https://github.com/oxog/kit" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container api-content">
+    <div class="api-header">
+      <h1>Observability Guide</h1>
+      <p>Monitor your application with metrics, health checks, and tracing</p>
+    </div>
+
+    <section class="section">
+      <h2>Metrics</h2>
+      <p>Collect application metrics with Prometheus-compatible output:</p>
+      <pre><code class="language-typescript">import { metrics } from '@oxog/kit/observability';
+
+// Counter - monotonically increasing value
+const requestCounter = metrics.counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labels: ['method', 'path', 'status'],
+});
+
+// Gauge - value that can go up or down
+const activeConnections = metrics.gauge({
+  name: 'active_connections',
+  help: 'Number of active connections',
+});
+
+// Histogram - distribution of values
+const requestDuration = metrics.histogram({
+  name: 'http_request_duration_seconds',
+  help: 'HTTP request duration in seconds',
+  buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+  labels: ['method', 'path'],
+});
+
+// Record metrics
+requestCounter.inc({ method: 'GET', path: '/api/users', status: '200' });
+activeConnections.inc();
+activeConnections.dec();
+
+const timer = requestDuration.startTimer({ method: 'GET', path: '/api/users' });
+await handleRequest();
+timer(); // Records duration</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Prometheus Endpoint</h2>
+      <pre><code class="language-typescript">import express from 'express';
+import { metrics } from '@oxog/kit/observability';
+
+const app = express();
+
+// Metrics endpoint for Prometheus
+app.get('/metrics', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.send(metrics.toPrometheus());
+});
+
+// Output example:
+// # HELP http_requests_total Total number of HTTP requests
+// # TYPE http_requests_total counter
+// http_requests_total{method="GET",path="/api/users",status="200"} 42
+// http_requests_total{method="POST",path="/api/users",status="201"} 15
+//
+// # HELP active_connections Number of active connections
+// # TYPE active_connections gauge
+// active_connections 8</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Request Metrics Middleware</h2>
+      <pre><code class="language-typescript">import { metrics } from '@oxog/kit/observability';
+
+const requestCounter = metrics.counter({
+  name: 'http_requests_total',
+  labels: ['method', 'path', 'status'],
+});
+
+const requestDuration = metrics.histogram({
+  name: 'http_request_duration_seconds',
+  buckets: [0.01, 0.05, 0.1, 0.5, 1, 5],
+  labels: ['method', 'path'],
+});
+
+function metricsMiddleware(req, res, next) {
+  const timer = requestDuration.startTimer({
+    method: req.method,
+    path: req.route?.path || req.path,
+  });
+
+  res.on('finish', () => {
+    timer(); // Record duration
+
+    requestCounter.inc({
+      method: req.method,
+      path: req.route?.path || req.path,
+      status: String(res.statusCode),
+    });
+  });
+
+  next();
+}
+
+app.use(metricsMiddleware);</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Health Checks</h2>
+      <pre><code class="language-typescript">import { createHealthChecker, checks } from '@oxog/kit/observability';
+
+const health = createHealthChecker();
+
+// Database check
+health.register('database', async () => {
+  const start = Date.now();
+  await db.query('SELECT 1');
+  const latency = Date.now() - start;
+
+  return {
+    status: latency < 100 ? 'healthy' : 'degraded',
+    latency,
+  };
+}, { critical: true, timeout: 5000 });
+
+// Redis check
+health.register('cache', async () => {
+  const latency = await redis.ping();
+  return {
+    status: latency < 50 ? 'healthy' : 'degraded',
+    latency,
+  };
+}, { critical: false });
+
+// External API check
+health.register('payment-api', checks.http({
+  url: 'https://api.payment.com/health',
+  timeout: 3000,
+}), { critical: true });
+
+// Memory check
+health.register('memory', checks.memory({
+  maxHeapUsedPercent: 90,
+}));</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Health Endpoints</h2>
+      <pre><code class="language-typescript">// Liveness - is the app running?
+app.get('/health/live', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Readiness - is the app ready to serve traffic?
+app.get('/health/ready', async (req, res) => {
+  const report = await health.check();
+
+  const statusCode = report.status === 'healthy' ? 200 :
+                     report.status === 'degraded' ? 200 : 503;
+
+  res.status(statusCode).json(report);
+});
+
+// Detailed health - all check details
+app.get('/health', async (req, res) => {
+  const report = await health.check();
+
+  res.status(report.status === 'unhealthy' ? 503 : 200).json({
+    status: report.status,
+    timestamp: new Date().toISOString(),
+    checks: report.checks,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+  });
+});</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Distributed Tracing</h2>
+      <pre><code class="language-typescript">import { createTracer, propagation, ConsoleExporter } from '@oxog/kit/observability';
+
+const tracer = createTracer({
+  serviceName: 'user-service',
+  exporter: new ConsoleExporter(), // or custom exporter
+});
+
+// Create span for incoming request
+function tracingMiddleware(req, res, next) {
+  // Extract context from incoming headers
+  const parentContext = propagation.extract(req.headers);
+
+  const span = tracer.startSpan('http-request', {
+    parent: parentContext,
+    attributes: {
+      'http.method': req.method,
+      'http.url': req.url,
+      'http.user_agent': req.headers['user-agent'],
+    },
+  });
+
+  // Store span in request for child spans
+  req.span = span;
+
+  res.on('finish', () => {
+    span.setAttribute('http.status_code', res.statusCode);
+    span.setStatus(res.statusCode < 400 ? 'ok' : 'error');
+    span.end();
+  });
+
+  next();
+}
+
+// Create child span for database query
+async function queryWithTracing(req, sql) {
+  const span = req.span.startSpan('database-query', {
+    attributes: {
+      'db.system': 'postgresql',
+      'db.statement': sql,
+    },
+  });
+
+  try {
+    const result = await db.query(sql);
+    span.setStatus('ok');
+    return result;
+  } catch (error) {
+    span.setStatus('error', error.message);
+    span.recordException(error);
+    throw error;
+  } finally {
+    span.end();
+  }
+}</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Propagating Context</h2>
+      <pre><code class="language-typescript">import { propagation } from '@oxog/kit/observability';
+import { http } from '@oxog/kit/network';
+
+// Inject trace context into outgoing requests
+async function callDownstreamService(span, data) {
+  const headers = {};
+  propagation.inject(span.context, headers);
+
+  const response = await http.post('https://downstream-service/api', data, {
+    headers,
+  });
+
+  return response.data;
+}
+
+// Full example with child span
+async function processOrder(req, orderId) {
+  const span = req.span.startSpan('process-order', {
+    attributes: { 'order.id': orderId },
+  });
+
+  try {
+    // Query database
+    const order = await queryWithTracing(req, `SELECT * FROM orders WHERE id = '${orderId}'`);
+
+    // Call payment service with trace context
+    const payment = await callDownstreamService(span, {
+      orderId,
+      amount: order.total,
+    });
+
+    span.addEvent('payment-completed', { transactionId: payment.id });
+    span.setStatus('ok');
+
+    return { order, payment };
+  } catch (error) {
+    span.setStatus('error', error.message);
+    span.recordException(error);
+    throw error;
+  } finally {
+    span.end();
+  }
+}</code></pre>
+    </section>
+
+    <section class="section">
+      <h2>Complete Setup</h2>
+      <pre><code class="language-typescript">import express from 'express';
+import { metrics, createHealthChecker, createTracer } from '@oxog/kit/observability';
+
+const app = express();
+
+// Initialize
+const health = createHealthChecker();
+const tracer = createTracer({ serviceName: 'my-api' });
+
+// Register health checks
+health.register('database', checkDatabase, { critical: true });
+health.register('cache', checkCache, { critical: false });
+
+// Metrics
+const requestCounter = metrics.counter({
+  name: 'http_requests_total',
+  labels: ['method', 'path', 'status'],
+});
+
+const requestDuration = metrics.histogram({
+  name: 'http_request_duration_seconds',
+  labels: ['method', 'path'],
+});
+
+// Middleware
+app.use((req, res, next) => {
+  const timer = requestDuration.startTimer({
+    method: req.method,
+    path: req.route?.path || req.path,
+  });
+
+  res.on('finish', () => {
+    timer();
+    requestCounter.inc({
+      method: req.method,
+      path: req.route?.path || req.path,
+      status: String(res.statusCode),
+    });
+  });
+
+  next();
+});
+
+// Endpoints
+app.get('/metrics', (req, res) => {
+  res.type('text/plain').send(metrics.toPrometheus());
+});
+
+app.get('/health', async (req, res) => {
+  const report = await health.check();
+  res.status(report.status === 'unhealthy' ? 503 : 200).json(report);
+});
+
+app.listen(3000);</code></pre>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>@oxog/kit - MIT License</p>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
