@@ -29,12 +29,12 @@ describe('clone utilities', () => {
     });
 
     it('clones Date objects', () => {
-      const original = new Date(2024, 0, 1);
+      const original = new Date(2025, 0, 1);
       const cloned = clone.clone(original);
       expect(cloned).toBeInstanceOf(Date);
       expect(cloned.getTime()).toBe(original.getTime());
-      cloned.setFullYear(2025);
-      expect(original.getFullYear()).toBe(2024);
+      cloned.setFullYear(2026);
+      expect(original.getFullYear()).toBe(2025);
     });
 
     it('clones RegExp objects', () => {
@@ -90,7 +90,7 @@ describe('clone utilities', () => {
     });
 
     it('shallow clones Date', () => {
-      const original = new Date(2024, 0, 1);
+      const original = new Date(2025, 0, 1);
       const cloned = clone.shallow(original);
       expect(cloned.getTime()).toBe(original.getTime());
     });

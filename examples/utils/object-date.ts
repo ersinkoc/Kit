@@ -82,12 +82,12 @@ console.log('\n\n=== Date Utilities ===\n');
 console.log('--- Creating Dates ---');
 const now = date.create();
 console.log('now:', date.format(now, 'YYYY-MM-DD HH:mm:ss'));
-console.log('parse:', date.format(date.parse('2024-06-15'), 'YYYY-MM-DD'));
+console.log('parse:', date.format(date.parse('2025-06-15'), 'YYYY-MM-DD'));
 console.log('fromUnix:', date.format(date.fromUnix(1718400000), 'YYYY-MM-DD'));
 
 // Formatting
 console.log('\n--- Formatting ---');
-const testDate = new Date(2024, 5, 15, 14, 30, 45);
+const testDate = new Date(2025, 5, 15, 14, 30, 45);
 console.log('YYYY-MM-DD:', date.format(testDate, 'YYYY-MM-DD'));
 console.log('DD/MM/YYYY:', date.format(testDate, 'DD/MM/YYYY'));
 console.log('HH:mm:ss:', date.format(testDate, 'HH:mm:ss'));
@@ -95,7 +95,7 @@ console.log('Full:', date.format(testDate, 'YYYY-MM-DD HH:mm:ss'));
 
 // Date math
 console.log('\n--- Date Math ---');
-const baseDate = new Date(2024, 0, 15);
+const baseDate = new Date(2025, 0, 15);
 console.log('Base:', date.format(baseDate, 'YYYY-MM-DD'));
 console.log('addDays(7):', date.format(date.addDays(baseDate, 7), 'YYYY-MM-DD'));
 console.log('subDays(7):', date.format(date.subDays(baseDate, 7), 'YYYY-MM-DD'));
@@ -104,7 +104,7 @@ console.log('addYears(1):', date.format(date.addYears(baseDate, 1), 'YYYY-MM-DD'
 
 // Start/End of period
 console.log('\n--- Start/End of Period ---');
-const midMonth = new Date(2024, 5, 15, 14, 30, 0);
+const midMonth = new Date(2025, 5, 15, 14, 30, 0);
 console.log('Date:', date.format(midMonth, 'YYYY-MM-DD HH:mm:ss'));
 console.log('startOfDay:', date.format(date.startOfDay(midMonth), 'YYYY-MM-DD HH:mm:ss'));
 console.log('endOfDay:', date.format(date.endOfDay(midMonth), 'YYYY-MM-DD HH:mm:ss'));
@@ -113,8 +113,8 @@ console.log('endOfMonth:', date.format(date.endOfMonth(midMonth), 'YYYY-MM-DD'))
 
 // Comparisons
 console.log('\n--- Comparisons ---');
-const date1 = new Date(2024, 0, 15);
-const date2 = new Date(2024, 0, 20);
+const date1 = new Date(2025, 0, 15);
+const date2 = new Date(2025, 0, 20);
 console.log('diffDays:', date.diffDays(date2, date1));
 console.log('compare:', date.compare(date2, date1));
 console.log('isEqual:', date.isEqual(date1, date1));
@@ -137,7 +137,7 @@ console.log('monthName:', date.monthName(midMonth));
 console.log('dayOfYear:', date.dayOfYear(midMonth));
 console.log('weekOfYear:', date.weekOfYear(midMonth));
 console.log('quarterOfYear:', date.quarterOfYear(midMonth));
-console.log('daysInMonth(2024, 2):', date.daysInMonth(2024, 2)); // February leap year
-console.log('isLeapYear(2024):', date.isLeapYear(2024));
+console.log('daysInMonth(2025, 2):', date.daysInMonth(2025, 2)); // February leap year
+console.log('isLeapYear(2025):', date.isLeapYear(2025));
 
 console.log('\n✅ Object and date utilities example completed!');

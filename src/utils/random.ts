@@ -272,8 +272,8 @@ export function color(): string {
  * ```typescript
  * import { random } from '@oxog/kit/utils';
  *
- * random.date(new Date('2020-01-01'), new Date('2024-01-01'))
- * // Random date between 2020 and 2024
+ * random.date(new Date('2020-01-01'), new Date('2025-01-01'))
+ * // Random date between 2020 and 2025
  * ```
  */
 export function date(start: Date, end: Date): Date {

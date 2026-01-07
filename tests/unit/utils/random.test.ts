@@ -236,7 +236,7 @@ describe('random utilities', () => {
   describe('date', () => {
     it('generates date in range', () => {
       const start = new Date('2020-01-01');
-      const end = new Date('2024-12-31');
+      const end = new Date('2025-12-31');
       for (let i = 0; i < 100; i++) {
         const result = random.date(start, end);
         expect(result.getTime()).toBeGreaterThanOrEqual(start.getTime());

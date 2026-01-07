@@ -299,16 +299,16 @@ describe('formatDuration', () => {
 });
 
 describe('formatDate', () => {
-  const testDate = new Date('2024-01-15T10:30:00Z');
+  const testDate = new Date('2025-01-15T10:30:00Z');
 
   it('should format as ISO string', () => {
     const result = formatDate(testDate, { format: 'ISO' });
-    expect(result).toBe('2024-01-15T10:30:00.000Z');
+    expect(result).toBe('2025-01-15T10:30:00.000Z');
   });
 
   it('should format as locale string', () => {
     const result = formatDate(testDate, { format: 'locale' });
-    expect(result).toContain('2024');
+    expect(result).toContain('2025');
   });
 
   it('should format as date only', () => {
@@ -323,17 +323,17 @@ describe('formatDate', () => {
 
   it('should format as YYYY-MM-DD', () => {
     const result = formatDate(testDate, { format: 'YYYY-MM-DD' });
-    expect(result).toBe('2024-01-15');
+    expect(result).toBe('2025-01-15');
   });
 
   it('should format as MM/DD/YYYY', () => {
     const result = formatDate(testDate, { format: 'MM/DD/YYYY' });
-    expect(result).toBe('01/15/2024');
+    expect(result).toBe('01/15/2025');
   });
 
   it('should format as DD.MM.YYYY', () => {
     const result = formatDate(testDate, { format: 'DD.MM.YYYY' });
-    expect(result).toBe('15.01.2024');
+    expect(result).toBe('15.01.2025');
   });
 
   it('should format as HH:mm:ss', () => {
@@ -349,11 +349,11 @@ describe('formatDate', () => {
 
   it('should use custom template', () => {
     const result = formatDate(testDate, { format: 'YYYY-MM-DD HH:mm' });
-    expect(result).toBe('2024-01-15 10:30');
+    expect(result).toBe('2025-01-15 10:30');
   });
 
   it('should handle string date input', () => {
-    const result = formatDate('2024-01-15');
+    const result = formatDate('2025-01-15');
     expect(result).toBeDefined();
   });
 
@@ -425,7 +425,7 @@ describe('formatRelativeTime', () => {
   });
 
   it('should handle string input', () => {
-    const result = formatRelativeTime('2024-01-01');
+    const result = formatRelativeTime('2025-01-01');
     expect(result).toBeDefined();
   });
 });

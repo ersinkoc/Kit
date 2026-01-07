@@ -407,36 +407,36 @@ describe('date transforms', () => {
   describe('format', () => {
     it('should format as ISO', () => {
       const transform = date.format('ISO');
-      const d = new Date('2024-01-15T10:30:00Z');
-      expect(transform(d)).toBe('2024-01-15T10:30:00.000Z');
+      const d = new Date('2025-01-15T10:30:00Z');
+      expect(transform(d)).toBe('2025-01-15T10:30:00.000Z');
     });
 
     it('should accept string input', () => {
       const transform = date.format('ISO');
-      expect(transform('2024-01-15T10:30:00Z')).toBe('2024-01-15T10:30:00.000Z');
+      expect(transform('2025-01-15T10:30:00Z')).toBe('2025-01-15T10:30:00.000Z');
     });
   });
 
   describe('add', () => {
     it('should add milliseconds', () => {
       const transform = date.add(1000); // 1 second
-      const d = new Date('2024-01-15T10:30:00Z');
-      expect(transform(d).toISOString()).toBe('2024-01-15T10:30:01.000Z');
+      const d = new Date('2025-01-15T10:30:00Z');
+      expect(transform(d).toISOString()).toBe('2025-01-15T10:30:01.000Z');
     });
   });
 
   describe('subtract', () => {
     it('should subtract milliseconds', () => {
       const transform = date.subtract(1000); // 1 second
-      const d = new Date('2024-01-15T10:30:00Z');
-      expect(transform(d).toISOString()).toBe('2024-01-15T10:29:59.000Z');
+      const d = new Date('2025-01-15T10:30:00Z');
+      expect(transform(d).toISOString()).toBe('2025-01-15T10:29:59.000Z');
     });
   });
 
   describe('startOfDay', () => {
     it('should return start of day', () => {
       const transform = date.startOfDay();
-      const d = new Date('2024-01-15T15:45:30');
+      const d = new Date('2025-01-15T15:45:30');
       const result = transform(d);
       expect(result.getHours()).toBe(0);
       expect(result.getMinutes()).toBe(0);
@@ -448,7 +448,7 @@ describe('date transforms', () => {
   describe('endOfDay', () => {
     it('should return end of day', () => {
       const transform = date.endOfDay();
-      const d = new Date('2024-01-15T10:30:00');
+      const d = new Date('2025-01-15T10:30:00');
       const result = transform(d);
       expect(result.getHours()).toBe(23);
       expect(result.getMinutes()).toBe(59);
@@ -460,7 +460,7 @@ describe('date transforms', () => {
   describe('startOfMonth', () => {
     it('should return start of month', () => {
       const transform = date.startOfMonth();
-      const d = new Date('2024-01-15T15:45:30');
+      const d = new Date('2025-01-15T15:45:30');
       const result = transform(d);
       expect(result.getDate()).toBe(1);
       expect(result.getHours()).toBe(0);
@@ -470,7 +470,7 @@ describe('date transforms', () => {
   describe('endOfMonth', () => {
     it('should return end of month', () => {
       const transform = date.endOfMonth();
-      const d = new Date('2024-01-15T10:30:00');
+      const d = new Date('2025-01-15T10:30:00');
       const result = transform(d);
       expect(result.getDate()).toBe(31);
       expect(result.getHours()).toBe(23);
@@ -506,7 +506,7 @@ describe('cast transforms', () => {
 
   describe('toDate', () => {
     it('should convert to date', () => {
-      const result = cast.toDate()('2024-01-15');
+      const result = cast.toDate()('2025-01-15');
       expect(result instanceof Date).toBe(true);
     });
 

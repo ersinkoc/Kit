@@ -207,39 +207,39 @@ describe('parseBoolean', () => {
 
 describe('parseDate', () => {
   it('should parse ISO 8601 format', () => {
-    const result = parseDate('2024-01-15T10:30:00Z');
+    const result = parseDate('2025-01-15T10:30:00Z');
     expect(result.success).toBe(true);
     expect(result.data.value).toBeInstanceOf(Date);
     expect(result.data.format).toBe('ISO 8601');
   });
 
   it('should parse ISO 8601 with milliseconds', () => {
-    const result = parseDate('2024-01-15T10:30:00.123Z');
+    const result = parseDate('2025-01-15T10:30:00.123Z');
     expect(result.success).toBe(true);
     expect(result.data.value.getMilliseconds()).toBe(123);
   });
 
   it('should parse ISO 8601 with timezone offset', () => {
-    const result = parseDate('2024-01-15T10:30:00+05:30');
+    const result = parseDate('2025-01-15T10:30:00+05:30');
     expect(result.success).toBe(true);
   });
 
   it('should parse ISO date only', () => {
-    const result = parseDate('2024-01-15');
+    const result = parseDate('2025-01-15');
     expect(result.success).toBe(true);
   });
 
   it('should parse US format MM/DD/YYYY', () => {
-    const result = parseDate('01/15/2024');
+    const result = parseDate('01/15/2025');
     expect(result.success).toBe(true);
     expect(result.data.format).toBe('MM/DD/YYYY');
     expect(result.data.value.getMonth()).toBe(0);
     expect(result.data.value.getDate()).toBe(15);
-    expect(result.data.value.getFullYear()).toBe(2024);
+    expect(result.data.value.getFullYear()).toBe(2025);
   });
 
   it('should parse European format DD.MM.YYYY', () => {
-    const result = parseDate('15.01.2024');
+    const result = parseDate('15.01.2025');
     expect(result.success).toBe(true);
     expect(result.data.format).toBe('DD.MM.YYYY');
     expect(result.data.value.getDate()).toBe(15);
@@ -247,13 +247,13 @@ describe('parseDate', () => {
   });
 
   it('should parse RFC 2822 format', () => {
-    const result = parseDate('Mon, 15 Jan 2024 10:30:00 +0000');
+    const result = parseDate('Mon, 15 Jan 2025 10:30:00 +0000');
     expect(result.success).toBe(true);
     expect(result.data.format).toBe('RFC 2822');
   });
 
   it('should parse custom format YYYY-MM-DD', () => {
-    const result = parseDate('2024-01-15');
+    const result = parseDate('2025-01-15');
     expect(result.success).toBe(true);
     expect(result.data.format).toBe('YYYY-MM-DD');
   });
@@ -269,7 +269,7 @@ describe('parseDate', () => {
   });
 
   it('should handle leap year dates', () => {
-    const result = parseDate('2024-02-29');
+    const result = parseDate('2025-02-29');
     expect(result.success).toBe(true);
     expect(result.data.value.getDate()).toBe(29);
   });

@@ -29,7 +29,7 @@ console.log('\n--- Text Operations ---');
 console.log('truncate:', string.truncate('This is a very long string that needs truncation', 30));
 console.log('wordCount:', string.wordCount('Hello world, how are you?'));
 console.log('reverse:', string.reverse('Hello'));
-console.log('slugify:', string.slugify('Hello World! @2024'));
+console.log('slugify:', string.slugify('Hello World! @2025'));
 console.log('escape:', string.escapeHtml('<script>alert("xss")</script>'));
 console.log('unescape:', string.unescapeHtml('&lt;div&gt;'));
 

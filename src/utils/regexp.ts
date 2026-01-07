@@ -123,8 +123,8 @@ export function isValid(patternStr: string): boolean {
  * ```typescript
  * import { regexp } from '@oxog/kit/utils';
  *
- * regexp.groups('2024-01-01', /(\d{4})-(\d{2})-(\d{2})/)
- * // { 1: '2024', 2: '01', 3: '01' }
+ * regexp.groups('2025-01-01', /(\d{4})-(\d{2})-(\d{2})/)
+ * // { 1: '2025', 2: '01', 3: '01' }
  * ```
  */
 export function groups(str: string, pattern: RegExp): Record<string, string> | null {

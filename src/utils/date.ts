@@ -37,7 +37,7 @@ export function create(timestamp?: number): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.parse('2024-01-01') // Date object
+ * date.parse('2025-01-01') // Date object
  * ```
  */
 export function parse(dateString: string): Date {
@@ -51,7 +51,7 @@ export function parse(dateString: string): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.format(new Date('2024-01-01'), 'YYYY-MM-DD') // '2024-01-01'
+ * date.format(new Date('2025-01-01'), 'YYYY-MM-DD') // '2025-01-01'
  * ```
  */
 export function format(date: Date, pattern = 'YYYY-MM-DD HH:mm:ss'): string {
@@ -80,7 +80,7 @@ export function format(date: Date, pattern = 'YYYY-MM-DD HH:mm:ss'): string {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.addDays(new Date('2024-01-01'), 7) // 2024-01-08
+ * date.addDays(new Date('2025-01-01'), 7) // 2025-01-08
  * ```
  */
 export function addDays(date: Date, days: number): Date {
@@ -96,7 +96,7 @@ export function addDays(date: Date, days: number): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.subDays(new Date('2024-01-08'), 7) // 2024-01-01
+ * date.subDays(new Date('2025-01-08'), 7) // 2025-01-01
  * ```
  */
 export function subDays(date: Date, days: number): Date {
@@ -110,7 +110,7 @@ export function subDays(date: Date, days: number): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.addMonths(new Date('2024-01-01'), 2) // 2024-03-01
+ * date.addMonths(new Date('2025-01-01'), 2) // 2025-03-01
  * ```
  */
 export function addMonths(date: Date, months: number): Date {
@@ -126,7 +126,7 @@ export function addMonths(date: Date, months: number): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.subMonths(new Date('2024-03-01'), 2) // 2024-01-01
+ * date.subMonths(new Date('2025-03-01'), 2) // 2025-01-01
  * ```
  */
 export function subMonths(date: Date, months: number): Date {
@@ -140,7 +140,7 @@ export function subMonths(date: Date, months: number): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.addYears(new Date('2024-01-01'), 1) // 2025-01-01
+ * date.addYears(new Date('2025-01-01'), 1) // 2026-01-01
  * ```
  */
 export function addYears(date: Date, years: number): Date {
@@ -156,7 +156,7 @@ export function addYears(date: Date, years: number): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.subYears(new Date('2025-01-01'), 1) // 2024-01-01
+ * date.subYears(new Date('2026-01-01'), 1) // 2025-01-01
  * ```
  */
 export function subYears(date: Date, years: number): Date {
@@ -170,7 +170,7 @@ export function subYears(date: Date, years: number): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.startOfDay(new Date('2024-01-01T15:30:00')) // 2024-01-01T00:00:00
+ * date.startOfDay(new Date('2025-01-01T15:30:00')) // 2025-01-01T00:00:00
  * ```
  */
 export function startOfDay(date: Date): Date {
@@ -186,7 +186,7 @@ export function startOfDay(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.endOfDay(new Date('2024-01-01T15:30:00')) // 2024-01-01T23:59:59
+ * date.endOfDay(new Date('2025-01-01T15:30:00')) // 2025-01-01T23:59:59
  * ```
  */
 export function endOfDay(date: Date): Date {
@@ -202,7 +202,7 @@ export function endOfDay(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.startOfWeek(new Date('2024-01-03')) // 2023-12-31 (Monday)
+ * date.startOfWeek(new Date('2025-01-03')) // 2023-12-31 (Monday)
  * ```
  */
 export function startOfWeek(date: Date): Date {
@@ -221,7 +221,7 @@ export function startOfWeek(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.endOfWeek(new Date('2024-01-03')) // 2024-01-07 (Sunday)
+ * date.endOfWeek(new Date('2025-01-03')) // 2025-01-07 (Sunday)
  * ```
  */
 export function endOfWeek(date: Date): Date {
@@ -238,7 +238,7 @@ export function endOfWeek(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.startOfMonth(new Date('2024-01-15')) // 2024-01-01
+ * date.startOfMonth(new Date('2025-01-15')) // 2025-01-01
  * ```
  */
 export function startOfMonth(date: Date): Date {
@@ -255,7 +255,7 @@ export function startOfMonth(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.endOfMonth(new Date('2024-01-15')) // 2024-01-31
+ * date.endOfMonth(new Date('2025-01-15')) // 2025-01-31
  * ```
  */
 export function endOfMonth(date: Date): Date {
@@ -273,7 +273,7 @@ export function endOfMonth(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.startOfYear(new Date('2024-06-15')) // 2024-01-01
+ * date.startOfYear(new Date('2025-06-15')) // 2025-01-01
  * ```
  */
 export function startOfYear(date: Date): Date {
@@ -290,7 +290,7 @@ export function startOfYear(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.endOfYear(new Date('2024-06-15')) // 2024-12-31
+ * date.endOfYear(new Date('2025-06-15')) // 2025-12-31
  * ```
  */
 export function endOfYear(date: Date): Date {
@@ -307,7 +307,7 @@ export function endOfYear(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.diffDays(new Date('2024-01-08'), new Date('2024-01-01')) // 7
+ * date.diffDays(new Date('2025-01-08'), new Date('2025-01-01')) // 7
  * ```
  */
 export function diffDays(dateLeft: Date, dateRight: Date): number {
@@ -322,7 +322,7 @@ export function diffDays(dateLeft: Date, dateRight: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.diffHours(new Date('2024-01-01T12:00'), new Date('2024-01-01T08:00')) // 4
+ * date.diffHours(new Date('2025-01-01T12:00'), new Date('2025-01-01T08:00')) // 4
  * ```
  */
 export function diffHours(dateLeft: Date, dateRight: Date): number {
@@ -337,7 +337,7 @@ export function diffHours(dateLeft: Date, dateRight: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.diffMinutes(new Date('2024-01-01T08:30'), new Date('2024-01-01T08:00')) // 30
+ * date.diffMinutes(new Date('2025-01-01T08:30'), new Date('2025-01-01T08:00')) // 30
  * ```
  */
 export function diffMinutes(dateLeft: Date, dateRight: Date): number {
@@ -352,7 +352,7 @@ export function diffMinutes(dateLeft: Date, dateRight: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.diffSeconds(new Date('2024-01-01T08:00:30'), new Date('2024-01-01T08:00:00')) // 30
+ * date.diffSeconds(new Date('2025-01-01T08:00:30'), new Date('2025-01-01T08:00:00')) // 30
  * ```
  */
 export function diffSeconds(dateLeft: Date, dateRight: Date): number {
@@ -367,7 +367,7 @@ export function diffSeconds(dateLeft: Date, dateRight: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.diffMs(new Date('2024-01-01T08:00:00.500'), new Date('2024-01-01T08:00:00.000')) // 500
+ * date.diffMs(new Date('2025-01-01T08:00:00.500'), new Date('2025-01-01T08:00:00.000')) // 500
  * ```
  */
 export function diffMs(dateLeft: Date, dateRight: Date): number {
@@ -428,7 +428,7 @@ export function isFuture(date: Date): boolean {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.isLeapYear(2024) // true
+ * date.isLeapYear(2025) // true
  * date.isLeapYear(2023) // false
  * ```
  */
@@ -443,8 +443,8 @@ export function isLeapYear(year: number): boolean {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.daysInMonth(2024, 1) // 29 (February in leap year)
- * date.daysInMonth(2024, 3) // 31 (March)
+ * date.daysInMonth(2025, 1) // 29 (February in leap year)
+ * date.daysInMonth(2025, 3) // 31 (March)
  * ```
  */
 export function daysInMonth(year: number, month: number): number {
@@ -458,8 +458,8 @@ export function daysInMonth(year: number, month: number): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.dayOfYear(new Date('2024-01-01')) // 1
- * date.dayOfYear(new Date('2024-12-31')) // 366
+ * date.dayOfYear(new Date('2025-01-01')) // 1
+ * date.dayOfYear(new Date('2025-12-31')) // 366
  * ```
  */
 export function dayOfYear(date: Date): number {
@@ -474,7 +474,7 @@ export function dayOfYear(date: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.weekOfYear(new Date('2024-01-01')) // 1
+ * date.weekOfYear(new Date('2025-01-01')) // 1
  * ```
  */
 export function weekOfYear(date: Date): number {
@@ -490,8 +490,8 @@ export function weekOfYear(date: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.quarterOfYear(new Date('2024-01-15')) // 1
- * date.quarterOfYear(new Date('2024-06-15')) // 2
+ * date.quarterOfYear(new Date('2025-01-15')) // 1
+ * date.quarterOfYear(new Date('2025-06-15')) // 2
  * ```
  */
 export function quarterOfYear(date: Date): number {
@@ -525,9 +525,9 @@ export function age(birthDate: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.compare(new Date('2024-01-02'), new Date('2024-01-01')) // 1
- * date.compare(new Date('2024-01-01'), new Date('2024-01-01')) // 0
- * date.compare(new Date('2024-01-01'), new Date('2024-01-02')) // -1
+ * date.compare(new Date('2025-01-02'), new Date('2025-01-01')) // 1
+ * date.compare(new Date('2025-01-01'), new Date('2025-01-01')) // 0
+ * date.compare(new Date('2025-01-01'), new Date('2025-01-02')) // -1
  * ```
  */
 export function compare(dateLeft: Date, dateRight: Date): number {
@@ -542,8 +542,8 @@ export function compare(dateLeft: Date, dateRight: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.isEqual(new Date('2024-01-01'), new Date('2024-01-01')) // true
- * date.isEqual(new Date('2024-01-01'), new Date('2024-01-02')) // false
+ * date.isEqual(new Date('2025-01-01'), new Date('2025-01-01')) // true
+ * date.isEqual(new Date('2025-01-01'), new Date('2025-01-02')) // false
  * ```
  */
 export function isEqual(dateLeft: Date, dateRight: Date): boolean {
@@ -557,7 +557,7 @@ export function isEqual(dateLeft: Date, dateRight: Date): boolean {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.min(new Date('2024-01-02'), new Date('2024-01-01')) // 2024-01-01
+ * date.min(new Date('2025-01-02'), new Date('2025-01-01')) // 2025-01-01
  * ```
  */
 export function min(...dates: Date[]): Date {
@@ -571,7 +571,7 @@ export function min(...dates: Date[]): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.max(new Date('2024-01-02'), new Date('2024-01-01')) // 2024-01-02
+ * date.max(new Date('2025-01-02'), new Date('2025-01-01')) // 2025-01-02
  * ```
  */
 export function max(...dates: Date[]): Date {
@@ -585,8 +585,8 @@ export function max(...dates: Date[]): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.clamp(new Date('2024-06-01'), new Date('2024-01-01'), new Date('2024-12-31')) // 2024-06-01
- * date.clamp(new Date('2023-06-01'), new Date('2024-01-01'), new Date('2024-12-31')) // 2024-01-01
+ * date.clamp(new Date('2025-06-01'), new Date('2025-01-01'), new Date('2025-12-31')) // 2025-06-01
+ * date.clamp(new Date('2023-06-01'), new Date('2025-01-01'), new Date('2025-12-31')) // 2025-01-01
  * ```
  */
 export function clamp(date: Date, min: Date, max: Date): Date {
@@ -617,7 +617,7 @@ export function timezoneOffset(date: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.toUTC(new Date('2024-01-01T00:00:00+03:00')) // 2023-12-31T21:00:00Z
+ * date.toUTC(new Date('2025-01-01T00:00:00+03:00')) // 2023-12-31T21:00:00Z
  * ```
  */
 export function toUTC(date: Date): Date {
@@ -631,7 +631,7 @@ export function toUTC(date: Date): Date {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.toISOString(new Date('2024-01-01')) // '2024-01-01T00:00:00.000Z'
+ * date.toISOString(new Date('2025-01-01')) // '2025-01-01T00:00:00.000Z'
  * ```
  */
 export function toISOString(date: Date): string {
@@ -645,7 +645,7 @@ export function toISOString(date: Date): string {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.toLocaleString(new Date(), 'en-US') // '1/1/2024, 12:00:00 AM'
+ * date.toLocaleString(new Date(), 'en-US') // '1/1/2025, 12:00:00 AM'
  * ```
  */
 export function toLocaleString(date: Date, locale = 'en-US'): string {
@@ -659,7 +659,7 @@ export function toLocaleString(date: Date, locale = 'en-US'): string {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.toLocaleDateString(new Date(), 'en-US') // '1/1/2024'
+ * date.toLocaleDateString(new Date(), 'en-US') // '1/1/2025'
  * ```
  */
 export function toLocaleDateString(date: Date, locale = 'en-US'): string {
@@ -687,7 +687,7 @@ export function toLocaleTimeString(date: Date, locale = 'en-US'): string {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.toUnix(new Date('2024-01-01')) // 1704067200
+ * date.toUnix(new Date('2025-01-01')) // 1704067200
  * ```
  */
 export function toUnix(date: Date): number {
@@ -701,7 +701,7 @@ export function toUnix(date: Date): number {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.fromUnix(1704067200) // 2024-01-01T00:00:00Z
+ * date.fromUnix(1704067200) // 2025-01-01T00:00:00Z
  * ```
  */
 export function fromUnix(timestamp: number): Date {
@@ -742,7 +742,7 @@ export function relativeTime(date: Date, baseDate: Date = new Date()): string {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.isValid(new Date('2024-01-01')) // true
+ * date.isValid(new Date('2025-01-01')) // true
  * date.isValid(new Date('invalid')) // false
  * ```
  */
@@ -757,7 +757,7 @@ export function isValid(date: Date): boolean {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.daysBetween(new Date('2024-01-08'), new Date('2024-01-01')) // [Date objects]
+ * date.daysBetween(new Date('2025-01-08'), new Date('2025-01-01')) // [Date objects]
  * ```
  */
 export function daysBetween(startDate: Date, endDate: Date): Date[] {
@@ -780,8 +780,8 @@ export function daysBetween(startDate: Date, endDate: Date): Date[] {
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.weekdayName(new Date('2024-01-01')) // 'Monday'
- * date.weekdayName(new Date('2024-01-01'), 'short') // 'Mon'
+ * date.weekdayName(new Date('2025-01-01')) // 'Monday'
+ * date.weekdayName(new Date('2025-01-01'), 'short') // 'Mon'
  * ```
  */
 export function weekdayName(date: Date, format: 'long' | 'short' = 'long'): string {
@@ -796,8 +796,8 @@ export function weekdayName(date: Date, format: 'long' | 'short' = 'long'): stri
  * ```typescript
  * import { date } from '@oxog/kit/utils';
  *
- * date.monthName(new Date('2024-01-01')) // 'January'
- * date.monthName(new Date('2024-01-01'), 'short') // 'Jan'
+ * date.monthName(new Date('2025-01-01')) // 'January'
+ * date.monthName(new Date('2025-01-01'), 'short') // 'Jan'
  * ```
  */
 export function monthName(date: Date, format: 'long' | 'short' = 'long'): string {
