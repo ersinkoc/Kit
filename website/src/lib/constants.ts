@@ -1,6 +1,6 @@
 export const PACKAGE_NAME = '@oxog/kit';
 export const PACKAGE_SHORT_NAME = 'kit';
-export const GITHUB_REPO = 'oxog/kit';
+export const GITHUB_REPO = 'ersinkoc/kit';
 export const NPM_PACKAGE = '@oxog/kit';
 export const VERSION = '1.0.0';
 export const DESCRIPTION = 'Zero-dependency Node.js standard library for modern TypeScript applications';
